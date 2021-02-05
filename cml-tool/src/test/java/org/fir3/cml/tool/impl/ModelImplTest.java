@@ -49,7 +49,6 @@ public class ModelImplTest {
         // Attempting to modify the model by modifying the passed parameters
 
         flags.remove(Model.Flag.Builtin);
-        flags.add(Model.Flag.Annotation);
 
         typeParameters.remove(ModelImplTest.TEST_TYPE_PARAMETER_1);
         typeParameters.add(ModelImplTest.TEST_TYPE_PARAMETER_2);
@@ -91,7 +90,6 @@ public class ModelImplTest {
 
         try {
             flags.remove(Model.Flag.Builtin);
-            flags.add(Model.Flag.Annotation);
         } catch (Throwable ignored) {
             // Not mandatory here.
         }

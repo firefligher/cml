@@ -14,13 +14,7 @@ public interface Model {
         /**
          * Indicates that the target model is provided by the compiler.
          */
-        Builtin,
-
-        /**
-         * Indicates that the model is an annotation that may be used to
-         * annotate attributes of other models.
-         */
-        Annotation
+        Builtin
     }
 
     /**
