@@ -27,13 +27,5 @@
             <artifactId>cml-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
-        <!-- test -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.7.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>

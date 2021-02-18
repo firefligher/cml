@@ -1,0 +1,4 @@
+org.fir3.cml.tool.TranslatorsTest$DummyTranslator
+org.fir3.cml.tool.TranslatorsTest$CollidingTranslator1
+org.fir3.cml.tool.TranslatorsTest$CollidingTranslator2
+org.fir3.cml.tool.TranslatorsTest$IgnoredTranslator
