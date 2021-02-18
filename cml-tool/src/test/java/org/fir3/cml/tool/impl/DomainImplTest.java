@@ -15,15 +15,15 @@ public class DomainImplTest {
     private static final Model TEST_MODEL_1 = new ModelImpl(
             "TestModel1",
             EnumSet.noneOf(Model.Flag.class),
-            Collections.<TypeParameter>emptySet(),
-            Collections.<Attribute>emptySet()
+            Collections.emptySet(),
+            Collections.emptySet()
     );
 
     private static final Model TEST_MODEL_2 = new ModelImpl(
             "TestModel2",
             EnumSet.noneOf(Model.Flag.class),
-            Collections.<TypeParameter>emptySet(),
-            Collections.<Attribute>emptySet()
+            Collections.emptySet(),
+            Collections.emptySet()
     );
 
     @Test
@@ -52,7 +52,7 @@ public class DomainImplTest {
 
         // The Domain instance must not have changed.
 
-        final EnumSet<Domain.Flag> actualFlags = domain.getFlags();
+        EnumSet<Domain.Flag> actualFlags = domain.getFlags();
         assertEquals(1, actualFlags.size());
         assertTrue(actualFlags.contains(Domain.Flag.Ubiquitous));
 
