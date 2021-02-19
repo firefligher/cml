@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class EnvironmentImpl implements Environment {
+public final class EnvironmentImpl implements Environment {
     private final Set<Domain> domains;
 
     public EnvironmentImpl(Set<Domain> domains) {
