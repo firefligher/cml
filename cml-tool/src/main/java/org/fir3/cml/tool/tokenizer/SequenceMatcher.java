@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 /**
- * A utility to test if a markable {@link InputStream} starts with a certain
- * byte sequence.
+ * A utility to test if the next bytes of a markable {@link InputStream} match
+ * a certain byte sequence.
  */
 final class SequenceMatcher {
     private final int[] sequence;
