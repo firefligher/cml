@@ -1,0 +1,15 @@
+ubiquitous domain org.fir3.cml.__builtin__;
+
+/**
+ * Some documentation.
+ */
+builtin model Bit;
+
+/* Some comment */
+builtin model Sequence<ElementType>;
+
+model Test
+{
+    Bit _P1Val;
+    Sequence<Bit> _P2Val;
+}
