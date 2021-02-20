@@ -68,7 +68,8 @@ public final class Tokenizer implements Closeable {
         return (c > 0x2F && c < 0x3A)       // Numbers
                 || (c > 0x40 && c < 0x5B)   // Uppercase letters
                 || (c > 0x60 && c < 0x7B)   // Lowercase letters
-                || (c == 0x5F);             // Underscore
+                || (c == 0x5F)              // Underscore
+                || (c == 0x2E);             // Dot
     }
 
     private final InputStream source;

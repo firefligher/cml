@@ -1,4 +1,4 @@
-ubiquitous domain org.fir3.cml.__builtin__;
+ubiquitous domain org.fir3.cml.builtin;
 
 /**
  * Some documentation.
