@@ -36,31 +36,31 @@ public class MultiSequenceMatcherTest {
     public void testSorting() throws IOException {
         // Setup
 
-        SequenceMatcher<Byte> seq1 = new SequenceMatcher<>(
-                Helper.fromPrimitive(
+        SequenceMatcher<Integer> seq1 = new SequenceMatcher<>(
+                Helper.fromByteArray(
                         MultiSequenceMatcherTest.SAMPLE_SEQUENCE_1
                 )
         );
 
-        SequenceMatcher<Byte> seq2 = new SequenceMatcher<>(
-                Helper.fromPrimitive(
+        SequenceMatcher<Integer> seq2 = new SequenceMatcher<>(
+                Helper.fromByteArray(
                         MultiSequenceMatcherTest.SAMPLE_SEQUENCE_2
                 )
         );
 
-        SequenceMatcher<Byte> seq3 = new SequenceMatcher<>(
-                Helper.fromPrimitive(
+        SequenceMatcher<Integer> seq3 = new SequenceMatcher<>(
+                Helper.fromByteArray(
                         MultiSequenceMatcherTest.SAMPLE_SEQUENCE_3
                 )
         );
 
-        MultiSequenceMatcher<Byte> matcher = new MultiSequenceMatcher<>(
+        MultiSequenceMatcher<Integer> matcher = new MultiSequenceMatcher<>(
                 seq1, seq2, seq3
         );
 
         // Assertions
 
-        try (Sequence<Byte> src = new InputStreamSequence(
+        try (Sequence<Integer> src = new InputStreamSequence(
                 new ByteArrayInputStream(
                         MultiSequenceMatcherTest.SAMPLE_BYTE_SOURCE_1
                 )
@@ -79,10 +79,10 @@ public class MultiSequenceMatcherTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new MultiSequenceMatcher<>(
-                        new SequenceMatcher<>(Helper.fromPrimitive(
+                        new SequenceMatcher<>(Helper.fromByteArray(
                                 MultiSequenceMatcherTest.SAMPLE_SEQUENCE_1
                         )),
-                        new SequenceMatcher<>(Helper.fromPrimitive(
+                        new SequenceMatcher<>(Helper.fromByteArray(
                                 MultiSequenceMatcherTest.SAMPLE_SEQUENCE_1
                         ))
                 )

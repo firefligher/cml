@@ -34,11 +34,11 @@ public class SequenceMatcherTest {
 
     @Test
     public void testMatching() throws IOException {
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(
-                Helper.fromPrimitive(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(
+                Helper.fromByteArray(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
         );
 
-        try (Sequence<Byte> src = new InputStreamSequence(
+        try (Sequence<Integer> src = new InputStreamSequence(
                 new ByteArrayInputStream(
                         SequenceMatcherTest.SAMPLE_BYTE_SOURCE_1
                 )
@@ -50,11 +50,11 @@ public class SequenceMatcherTest {
 
     @Test
     public void testShorthandMatching() throws IOException {
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(
-                Helper.fromPrimitive(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(
+                Helper.fromByteArray(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
         );
 
-        try (Sequence<Byte> src = new InputStreamSequence(
+        try (Sequence<Integer> src = new InputStreamSequence(
                 new ByteArrayInputStream(
                         SequenceMatcherTest.SAMPLE_BYTE_SOURCE_1
                 )
@@ -66,11 +66,11 @@ public class SequenceMatcherTest {
 
     @Test
     public void testSkipping() throws IOException {
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(
-                Helper.fromPrimitive(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(
+                Helper.fromByteArray(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
         );
 
-        try (Sequence<Byte> src = new InputStreamSequence(
+        try (Sequence<Integer> src = new InputStreamSequence(
                 new ByteArrayInputStream(
                         SequenceMatcherTest.SAMPLE_BYTE_SOURCE_1
                 )
@@ -82,11 +82,11 @@ public class SequenceMatcherTest {
 
     @Test
     public void testShorthandSkipping() throws IOException {
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(
-                Helper.fromPrimitive(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(
+                Helper.fromByteArray(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
         );
 
-        try (Sequence<Byte> src = new InputStreamSequence(
+        try (Sequence<Integer> src = new InputStreamSequence(
                 new ByteArrayInputStream(
                         SequenceMatcherTest.SAMPLE_BYTE_SOURCE_1
                 )
@@ -98,43 +98,43 @@ public class SequenceMatcherTest {
 
     @Test
     public void testCopyInConstructor() {
-        Byte[] seq = Helper.fromPrimitive(new byte[] {
+        Integer[] seq = Helper.fromByteArray(new byte[] {
                 (byte) 0xF0, (byte) 0x0D
         });
 
-        Byte[] seqCopy = Arrays.copyOf(seq, seq.length);
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(seq);
+        Integer[] seqCopy = Arrays.copyOf(seq, seq.length);
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(seq);
 
-        seq[0] = (byte) 0xC0;
-        seq[1] = (byte) 0x1A;
+        seq[0] = 0xC0;
+        seq[1] = 0x1A;
 
         assertArrayEquals(seqCopy, matcher.getSequence());
     }
 
     @Test
     public void testUnmodifiability() {
-        Byte[] seq = Helper.fromPrimitive(new byte[] {
+        Integer[] seq = Helper.fromByteArray(new byte[] {
                 (byte) 0xF0, (byte) 0x0D
         });
 
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(seq);
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(seq);
 
-        Byte[] byteSeq = matcher.getSequence();
-        byteSeq[0] = (byte) 0xC0;
-        byteSeq[1] = (byte) 0x1A;
+        Integer[] byteSeq = matcher.getSequence();
+        byteSeq[0] = 0xC0;
+        byteSeq[1] = 0x1A;
 
         assertArrayEquals(seq, matcher.getSequence());
     }
 
     @Test
     public void testRewindOnNotMatching() throws IOException {
-        SequenceMatcher<Byte> matcher = new SequenceMatcher<>(
-                Helper.fromPrimitive(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
+        SequenceMatcher<Integer> matcher = new SequenceMatcher<>(
+                Helper.fromByteArray(SequenceMatcherTest.SAMPLE_SEQUENCE_1)
         );
 
         byte[] remaining;
 
-        try (Sequence<Byte> src = new InputStreamSequence(
+        try (Sequence<Integer> src = new InputStreamSequence(
                 new ByteArrayInputStream(
                         SequenceMatcherTest.SAMPLE_BYTE_SOURCE_2
                 )
