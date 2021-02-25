@@ -20,7 +20,7 @@ public class AbstractSequenceTest {
         }
 
         @Override
-        protected TElement read0() throws IOException {
+        protected TElement read0() {
             if (!this.closed && this.bufferPointer < this.buffer.length) {
                 return this.buffer[this.bufferPointer++];
             }
@@ -29,7 +29,7 @@ public class AbstractSequenceTest {
         }
 
         @Override
-        protected void close0() throws IOException {
+        protected void close0() {
             this.closed = true;
         }
     }
