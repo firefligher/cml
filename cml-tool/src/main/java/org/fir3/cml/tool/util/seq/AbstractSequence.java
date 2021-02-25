@@ -1,6 +1,7 @@
 package org.fir3.cml.tool.util.seq;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * An abstract implementation of the {@link Sequence} interface that provides a
@@ -11,11 +12,27 @@ import java.io.IOException;
  */
 public abstract class AbstractSequence<TElement>
         implements Sequence<TElement> {
+    /**
+     * The number of elements that have been buffered at the beginning of the
+     * {@link #buffer} and shall be read from there before the next element is
+     * directly read from the sequence by calling {@link #read0()}.
+     */
+    private int readBuffer;
+
+    /**
+     * The index of the slot of {@link #buffer} that the next element, which is
+     * read by calling {@link #read0()}, shall be stored at.
+     */
     private int bufferPointer;
+
+    /**
+     * An array that stores the buffered elements.
+     */
     private TElement[] buffer;
 
+    @SuppressWarnings("unchecked")
     protected AbstractSequence() {
-        this.buffer = this.newArray(0);
+        this.buffer = (TElement[]) new Object[0];
     }
 
     /**
@@ -39,54 +56,62 @@ public abstract class AbstractSequence<TElement>
 
     @Override
     public final TElement read() throws IOException {
-        TElement nextElement = null;
+        // If the readBuffer is greater than zero, the requested element will
+        // be read from the beginning of the buffer.
 
-        // If the value of bufferPointer is greater than zero, the next element
-        // is taken from the internal buffer. If this element is null, or
-        // bufferPointer is equal to zero, the element it is read directly from
-        // the sequence.
-
-        if (this.bufferPointer > 0) {
-            this.bufferPointer--;
-            nextElement = this.buffer[this.bufferPointer];
+        if (this.readBuffer > 0) {
+            int elementIndex = this.bufferPointer - this.readBuffer;
+            this.readBuffer--;
+            return this.buffer[elementIndex];
         }
 
-        if (nextElement == null) {
-            nextElement = this.read0();
+        // Otherwise, the next element will be read from the actual sequence
+        // implementation by calling read0. Also, if the bufferPointer is
+        // pointing to a valid index of buffer, the read element will be stored
+        // there.
 
-            // If bufferPointer is less than zero, we buffer the element
+        TElement element = this.read0();
 
-            if (this.bufferPointer < 0) {
-                this.bufferPointer++;
-                this.buffer[-this.bufferPointer] = nextElement;
-            }
+        if (this.bufferPointer < this.buffer.length) {
+            this.buffer[this.bufferPointer] = element;
+            this.bufferPointer++;
         }
 
-        return nextElement;
+        return element;
     }
 
     @Override
     public void mark(int elementCount) {
-        if (this.buffer.length < elementCount) {
-            this.buffer = this.newArray(elementCount);
+        // If elementCount is greater than the total length of the buffer
+        // array, we need to enlarge the buffer (without loosing its current
+        // data).
+
+        if (elementCount > this.buffer.length) {
+            this.buffer = Arrays.copyOf(this.buffer, elementCount);
         }
 
-        this.bufferPointer = -elementCount;
+        // Moving the elements of the readBuffer to the beginning of the
+        // buffer (if there are any).
+
+        System.arraycopy(
+                this.buffer, this.bufferPointer - this.readBuffer,
+                this.buffer, 0, this.readBuffer
+        );
+
+        // Adjusting the bufferPointer to match the new buffer
+
+        this.bufferPointer = this.readBuffer;
     }
 
     @Override
     public void reset() {
-        this.bufferPointer = this.buffer.length;
+        this.readBuffer = this.bufferPointer;
     }
 
     @Override
     public final void close() throws IOException {
+        this.readBuffer = 0;
         this.bufferPointer = 0;
         this.close0();
-    }
-
-    @SuppressWarnings("unchecked")
-    private TElement[] newArray(int size) {
-        return (TElement[]) new Object[size];
     }
 }

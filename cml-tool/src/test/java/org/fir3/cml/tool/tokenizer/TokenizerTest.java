@@ -1,10 +1,11 @@
 package org.fir3.cml.tool.tokenizer;
 
 import org.fir3.cml.tool.exception.TokenizerException;
+import org.fir3.cml.tool.util.seq.InputStreamSequence;
+import org.fir3.cml.tool.util.seq.Sequence;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -61,8 +62,8 @@ public class TokenizerTest {
     public void testTokenizer() throws IOException, TokenizerException {
         Queue<Token> tokens = new LinkedList<>();
 
-        try (InputStream src = TokenizerTest.class.getResourceAsStream(
-                "/cml/sample1.cml"
+        try (Sequence<Byte> src = new InputStreamSequence(
+                TokenizerTest.class.getResourceAsStream("/cml/sample1.cml")
         )) {
             Tokenizer tknzr = new Tokenizer(src);
             Token token;

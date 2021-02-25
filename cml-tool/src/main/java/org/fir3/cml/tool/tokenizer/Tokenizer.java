@@ -1,9 +1,11 @@
 package org.fir3.cml.tool.tokenizer;
 
 import org.fir3.cml.tool.exception.TokenizerException;
+import org.fir3.cml.tool.util.seq.Sequence;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.Closeable;
+import java.io.EOFException;
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -14,42 +16,49 @@ import java.util.stream.Collectors;
  * The tokenizer reads {@link Token}s from a byte source.
  */
 public final class Tokenizer implements Closeable {
-    private static final MultiSequenceMatcher WHITESPACE_MATCHER =
-            new MultiSequenceMatcher(
-                    new SequenceMatcher((byte) 0x09),   // Tab
-                    new SequenceMatcher((byte) 0x0A),   // Line feed
-                    new SequenceMatcher(
+    @SuppressWarnings("unchecked")
+    private static final SequenceMatcher<Byte>[] EMPTY_SEQUENCE_MATCHER_ARRAY =
+            new SequenceMatcher[0];
+
+
+    private static final MultiSequenceMatcher<Byte> WHITESPACE_MATCHER =
+            new MultiSequenceMatcher<>(
+                    new SequenceMatcher<>((byte) 0x09), // Tab
+                    new SequenceMatcher<>((byte) 0x0A), // Line feed
+                    new SequenceMatcher<>(
                             (byte) 0x0D,                // Carriage Return
                             (byte) 0x0A                 // Line Feed
                     ),
-                    new SequenceMatcher((byte) 0x20)    // Space
+                    new SequenceMatcher<>((byte) 0x20)  // Space
             );
 
-    private static final SequenceMatcher COMMENT_START_MATCHER =
-            new SequenceMatcher(
+    private static final SequenceMatcher<Byte> COMMENT_START_MATCHER =
+            new SequenceMatcher<>(
                     (byte) 0x2F,    // Slash
                     (byte) 0x2A     // Asterisk
             );
 
-    private static final SequenceMatcher COMMENT_END_MATCHER =
-            new SequenceMatcher(
+    private static final SequenceMatcher<Byte> COMMENT_END_MATCHER =
+            new SequenceMatcher<>(
                     (byte) 0x2A,    // Asterisk
                     (byte) 0x2F     // Slash
             );
 
     private static final Map<
-            SequenceMatcher,
+            SequenceMatcher<Byte>,
             KeywordToken.Keyword
             > KEYWORD_MATCHERS;
 
-    private static final MultiSequenceMatcher KEYWORD_MATCHER;
+    private static final MultiSequenceMatcher<Byte> KEYWORD_MATCHER;
 
     static {
         KEYWORD_MATCHERS = Arrays.stream(KeywordToken.Keyword.values())
                 .map(k -> new AbstractMap.SimpleEntry<>(
-                        new SequenceMatcher(
+                        new SequenceMatcher<>(
                                 k.getCharSequence()
-                                        .getBytes(StandardCharsets.US_ASCII)
+                                        .chars()
+                                        .mapToObj(c -> (byte) c)
+                                        .toArray(Byte[]::new)
                         ),
                         k
                 ))
@@ -58,9 +67,9 @@ public final class Tokenizer implements Closeable {
                         AbstractMap.SimpleEntry::getValue
                 ));
 
-        KEYWORD_MATCHER = new MultiSequenceMatcher(
+        KEYWORD_MATCHER = new MultiSequenceMatcher<>(
                 Tokenizer.KEYWORD_MATCHERS.keySet()
-                        .toArray(new SequenceMatcher[0])
+                        .toArray(Tokenizer.EMPTY_SEQUENCE_MATCHER_ARRAY)
         );
     }
 
@@ -72,21 +81,10 @@ public final class Tokenizer implements Closeable {
                 || (c == 0x2E);             // Dot
     }
 
-    private final InputStream source;
+    private final Sequence<Byte> source;
 
-    public Tokenizer(InputStream src) {
-        // Since the tokenizer may need to rewind the source stream, we ensure
-        // that the mark-feature will be supported by the internally stored
-        // stream instance.
-
-        if (src.markSupported()) {
-            this.source = src;
-        } else {
-            // According to the Java documentation, the BufferedInputStream
-            // always supports the mark-feature.
-
-            this.source = new BufferedInputStream(src);
-        }
+    public Tokenizer(Sequence<Byte> src) {
+        this.source = src;
     }
 
     @Override
@@ -118,7 +116,7 @@ public final class Tokenizer implements Closeable {
             }
         } while (skipped);
 
-        Optional<SequenceMatcher> keywordMatcher;
+        Optional<SequenceMatcher<Byte>> keywordMatcher;
 
         try {
             keywordMatcher = Tokenizer.KEYWORD_MATCHER.skip(this.source);

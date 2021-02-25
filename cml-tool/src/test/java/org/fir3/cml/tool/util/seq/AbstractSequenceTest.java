@@ -128,4 +128,62 @@ public class AbstractSequenceTest {
 
         seq.close();
     }
+
+    @Test
+    public void testMarkAndResetConsecutive() throws IOException {
+        Sequence<Integer> seq = new TestSequence<>(
+                AbstractSequenceTest.TEST_SEQUENCE);
+
+        // First iteration
+
+        seq.mark(5);
+        seq.reset();
+
+        // Second iteration
+
+        seq.mark(2);
+
+        for (int index = 0; index < 2; index++) {
+            assertEquals(
+                    AbstractSequenceTest.TEST_SEQUENCE[index],
+                    seq.read()
+            );
+        }
+
+        seq.reset();
+
+        // Third iteration
+
+        seq.mark(4);
+
+        for (int index = 0; index < 3; index++) {
+            assertEquals(
+                    AbstractSequenceTest.TEST_SEQUENCE[index],
+                    seq.read()
+            );
+        }
+
+        seq.reset();
+
+        // Fourth iteration
+
+        seq.mark(5);
+
+        for (int index = 0; index < 1; index++) {
+            assertEquals(
+                    AbstractSequenceTest.TEST_SEQUENCE[index],
+                    seq.read()
+            );
+        }
+
+        seq.reset();
+
+        // Final iteration
+
+        for (int value : AbstractSequenceTest.TEST_SEQUENCE) {
+            assertEquals(value, seq.read());
+        }
+
+        seq.close();
+    }
 }

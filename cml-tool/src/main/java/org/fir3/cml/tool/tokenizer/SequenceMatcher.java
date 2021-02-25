@@ -1,71 +1,67 @@
 package org.fir3.cml.tool.tokenizer;
 
+import org.fir3.cml.tool.util.seq.Sequence;
+
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 /**
- * A utility to test if the next bytes of a markable {@link InputStream} match
- * a certain byte sequence.
+ * A utility to test if the next elements of a {@link Sequence} match a certain
+ * subsequence.
+ *
+ * @param <TElement>    The type of the elements that this
+ *                      <code>SequenceMatcher</code> matches with
  */
-final class SequenceMatcher {
-    private final int[] sequence;
+final class SequenceMatcher<TElement> {
+    private final TElement[] sequence;
 
     /**
      * Initializes the matcher with the specified <code>sequence</code> of
-     * bytes.
+     * elements.
      *
-     * @param sequence  The byte sequence that this instance will be able to
-     *                  match in {@link InputStream}s. This is required to
-     *                  consist of at least one byte.
+     * @param sequence  The element subsequence that this instance will be able
+     *                  to recognize in a {@link Sequence}. This is required to
+     *                  consist of at least one element.
      *
      * @throws IllegalArgumentException If the specified <code>sequence</code>
      *                                  is empty.
      */
-    SequenceMatcher(byte... sequence) {
+    @SafeVarargs
+    SequenceMatcher(TElement... sequence) {
         if (sequence.length < 1) {
             throw new IllegalArgumentException("sequence too short");
         }
 
-        this.sequence = new int[sequence.length];
-
-        for (int index = 0; index < sequence.length; index++) {
-            this.sequence[index] = sequence[index] & 0xFF;
-        }
+        this.sequence = Arrays.copyOf(sequence, sequence.length);
     }
 
     /**
-     * Tests, if the next bytes of the specified <code>src</code> stream match
-     * with the byte sequence that this matcher has been initialized with.
+     * Tests, if the next elements of the specified <code>src</code> sequence
+     * match the element subsequence that this matcher was initialized with.
      *
-     * @param src           The markable source stream.
+     * @param src           The source sequence.
      * @param skipIfMatches If this flag is enabled, the method will not rewind
-     *                      the <code>src</code> stream to its initial state,
-     *                      if the byte sequence of this matcher was found.
+     *                      the <code>src</code> sequence to its initial state,
+     *                      if the element subsequence of this matcher was
+     *                      recognized.
      *
-     * @return  Either <code>true</code>, if the byte sequence of this matcher
-     *          was found (and skipped, if <code>skipIfMatches</code> was
-     *          enabled), otherwise <code>false</code>.
+     * @return  Either <code>true</code>, if the element subsequence of this
+     *          matcher was recognized (and skipped, if
+     *          <code>skipIfMatches</code> was enabled), otherwise
+     *          <code>false</code>.
      *
      * @throws IOException  If an {@link IOException} occurs when dealing with
-     *                      the <code>src</code> stream.
-     *
-     * @throws IllegalArgumentException If the specified <code>src</code> does
-     *                                  not support marks.
+     *                      the <code>src</code> sequence.
      */
-    public boolean matches(InputStream src, boolean skipIfMatches)
+    public boolean matches(Sequence<TElement> src, boolean skipIfMatches)
             throws IOException {
-        if (!src.markSupported()) {
-            throw new IllegalArgumentException("src does not support marks");
-        }
-
         src.mark(this.sequence.length);
 
         // Read until a non-matching byte occurs or the end of the sequence
         // is reached.
 
-        for (int seqByte : this.sequence) {
+        for (TElement seqByte : this.sequence) {
             try {
                 if (seqByte == src.read()) {
                     continue;
@@ -84,60 +80,48 @@ final class SequenceMatcher {
     }
 
     /**
-     * Tests, if the next couple of bytes of the <code>src</code> stream match
-     * the byte sequence that this matcher was initialized with.
+     * Tests, if the next couple of bytes of the <code>src</code> sequence
+     * match the element subsequence that this matcher was initialized with.
      *
-     * @param src   The stream that shall be analyzed and that needs to support
-     *              marks.
+     * @param src   The sequence that shall be analyzed.
      *
-     * @return  Either <code>true</code>, if the next couple of bytes match the
-     *          byte sequence of this matcher, otherwise <code>false</code>.
+     * @return  Either <code>true</code>, if the next couple of elements match
+     *          the element sequence of this matcher, otherwise
+     *          <code>false</code>.
      *
      * @throws IOException  If an {@link IOException} occurs when dealing with
-     *                      the <code>src</code> stream.
-     *
-     * @throws IllegalArgumentException If the specified <code>src</code> does
-     *                                  not support marks.
+     *                      the <code>src</code> sequence.
      */
-    public boolean matches(InputStream src) throws IOException {
+    public boolean matches(Sequence<TElement> src) throws IOException {
         return this.matches(src, false);
     }
 
     /**
-     * Skips the next couple of bytes, if they match the byte sequence of this
-     * matcher.
+     * Skips the next couple of elements, if they match the element subsequence
+     * of this matcher.
      *
-     * @param src   The stream, whose next couple of bytes shall be skipped, if
-     *              they match the byte sequence of this matcher. It is
-     *              required to support marks.
+     * @param src   The sequence, whose next couple of elements shall be
+     *              skipped, if they match the element subsequence of this
+     *              matcher.
      *
-     * @return  Either <code>true</code>, if the next couple of bytes matched
-     *          this matcher's byte sequence and have been skipped, otherwise
-     *          <code>false</code>.
+     * @return  Either <code>true</code>, if the next couple of elements
+     *          matched this matcher's element subsequence and have been
+     *          skipped, otherwise <code>false</code>.
      *
      * @throws IOException  If an {@link IOException} occurs when dealing with
-     *                      the <code>src</code> stream.
-     *
-     * @throws IllegalArgumentException If the specified <code>src</code> does
-     *                                  not support marks.
+     *                      the <code>src</code> sequence.
      */
-    public boolean skip(InputStream src) throws IOException {
+    public boolean skip(Sequence<TElement> src) throws IOException {
         return this.matches(src, true);
     }
 
     /**
-     * Returns the byte sequence that this matcher was initialized with.
+     * Returns the element sequence that this matcher was initialized with.
      *
-     * @return  The byte sequence of this matcher instance
+     * @return  The element sequence of this matcher instance
      */
-    public byte[] getByteSequence() {
-        byte[] byteSequence = new byte[this.sequence.length];
-
-        for (int index = 0; index < byteSequence.length; index++) {
-            byteSequence[index] = (byte) this.sequence[index];
-        }
-
-        return byteSequence;
+    public TElement[] getSequence() {
+        return Arrays.copyOf(this.sequence, this.sequence.length);
     }
 
     @Override
@@ -149,7 +133,7 @@ final class SequenceMatcher {
     public boolean equals(Object obj) {
         if (obj instanceof SequenceMatcher) {
             return Arrays.equals(
-                    ((SequenceMatcher) obj).sequence,
+                    ((SequenceMatcher<?>) obj).sequence,
                     this.sequence
             );
         }
