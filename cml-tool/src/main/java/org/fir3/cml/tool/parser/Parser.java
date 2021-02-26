@@ -150,7 +150,7 @@ public final class Parser {
                         : KeywordToken.Keyword.LeftBrace
         );
 
-        Set<TypeParameter> typeParameters = new HashSet<>();
+        List<TypeParameter> typeParameters = new ArrayList<>();
 
         if (keyword == KeywordToken.Keyword.LeftChevron) {
             // Parsing as many type parameters as possible, but at least one.

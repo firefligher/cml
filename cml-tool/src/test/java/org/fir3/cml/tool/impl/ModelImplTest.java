@@ -5,10 +5,7 @@ import org.fir3.cml.api.model.Model;
 import org.fir3.cml.api.model.TypeParameter;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +33,7 @@ public class ModelImplTest {
 
         EnumSet<Model.Flag> flags = EnumSet.of(Model.Flag.Builtin);
 
-        Set<TypeParameter> typeParameters = new HashSet<>();
+        List<TypeParameter> typeParameters = new ArrayList<>();
         typeParameters.add(ModelImplTest.TEST_TYPE_PARAMETER_1);
 
         Set<Attribute> attributes = new HashSet<>();
@@ -62,7 +59,7 @@ public class ModelImplTest {
         assertEquals(1, actualFlags.size());
         assertTrue(actualFlags.contains(Model.Flag.Builtin));
 
-        Set<TypeParameter> actualTypeParameters = model.getTypeParameters();
+        List<TypeParameter> actualTypeParameters = model.getTypeParameters();
         assertEquals(1, actualTypeParameters.size());
         assertTrue(actualTypeParameters.contains(
                 ModelImplTest.TEST_TYPE_PARAMETER_1
@@ -78,7 +75,7 @@ public class ModelImplTest {
         Model model = new ModelImpl(
                 "Test",
                 EnumSet.of(Model.Flag.Builtin),
-                Collections.singleton(ModelImplTest.TEST_TYPE_PARAMETER_1),
+                Collections.singletonList(ModelImplTest.TEST_TYPE_PARAMETER_1),
                 Collections.singleton(ModelImplTest.TEST_ATTRIBUTE_1)
         );
 
@@ -98,7 +95,7 @@ public class ModelImplTest {
         assertEquals(1, actualFlags.size());
         assertTrue(actualFlags.contains(Model.Flag.Builtin));
 
-        Set<TypeParameter> typeParameters = model.getTypeParameters();
+        List<TypeParameter> typeParameters = model.getTypeParameters();
 
         try {
             typeParameters.remove(ModelImplTest.TEST_TYPE_PARAMETER_1);
@@ -107,7 +104,7 @@ public class ModelImplTest {
             // Not mandatory here.
         }
 
-        Set<TypeParameter> actualTypeParameters = model.getTypeParameters();
+        List<TypeParameter> actualTypeParameters = model.getTypeParameters();
         assertEquals(1, actualTypeParameters.size());
         assertTrue(actualTypeParameters.contains(
                 ModelImplTest.TEST_TYPE_PARAMETER_1

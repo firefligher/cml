@@ -1,6 +1,7 @@
 package org.fir3.cml.api.model;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,7 +37,7 @@ public interface Model {
      *
      * @return  The type parameters of this model.
      */
-    Set<TypeParameter> getTypeParameters();
+    List<TypeParameter> getTypeParameters();
 
     /**
      * Returns the attributes that this model consists of.

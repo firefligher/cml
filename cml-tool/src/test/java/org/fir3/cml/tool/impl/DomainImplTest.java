@@ -15,14 +15,14 @@ public class DomainImplTest {
     private static final Model TEST_MODEL_1 = new ModelImpl(
             "TestModel1",
             EnumSet.noneOf(Model.Flag.class),
-            Collections.emptySet(),
+            Collections.emptyList(),
             Collections.emptySet()
     );
 
     private static final Model TEST_MODEL_2 = new ModelImpl(
             "TestModel2",
             EnumSet.noneOf(Model.Flag.class),
-            Collections.emptySet(),
+            Collections.emptyList(),
             Collections.emptySet()
     );
 
