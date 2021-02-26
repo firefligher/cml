@@ -166,7 +166,7 @@ public final class Tokenizer implements Closeable {
 
         while (true) {
             this.source.mark(1);
-            Integer character = this.source.read();
+            Byte character = this.source.read();
 
             if (character == null) {
                 throw new EOFException();
