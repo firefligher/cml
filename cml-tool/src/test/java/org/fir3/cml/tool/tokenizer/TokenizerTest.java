@@ -62,7 +62,7 @@ public class TokenizerTest {
     public void testTokenizer() throws IOException, TokenizerException {
         Queue<Token> tokens = new LinkedList<>();
 
-        try (Sequence<Integer> src = new InputStreamSequence(
+        try (Sequence<Byte> src = new InputStreamSequence(
                 TokenizerTest.class.getResourceAsStream("/cml/sample1.cml")
         )) {
             Tokenizer tknzr = new Tokenizer(src);

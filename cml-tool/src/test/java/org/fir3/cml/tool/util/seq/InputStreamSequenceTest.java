@@ -22,12 +22,12 @@ public class InputStreamSequenceTest {
         InputStream src = new ByteArrayInputStream(
                 InputStreamSequenceTest.TEST_SEQUENCE);
 
-        Sequence<Integer> seq = new InputStreamSequence(src);
+        Sequence<Byte> seq = new InputStreamSequence(src);
 
         // Asserting that the sequence matches the original bytes
 
         for (byte value : InputStreamSequenceTest.TEST_SEQUENCE) {
-            assertEquals(value & 0xFF, seq.read());
+            assertEquals(value, seq.read());
         }
 
         // Cleaning up

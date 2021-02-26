@@ -5,7 +5,6 @@ import org.fir3.cml.tool.util.seq.Sequence;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * A utility to test if the next elements of a {@link Sequence} match a certain
@@ -64,7 +63,7 @@ final class SequenceMatcher<TElement> {
 
         for (TElement seqByte : this.sequence) {
             try {
-                if (Objects.equals(seqByte, src.read())) {
+                if (seqByte == src.read()) {
                     continue;
                 }
             } catch (EOFException ignored) { }

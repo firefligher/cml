@@ -17,39 +17,39 @@ import java.util.stream.Collectors;
  */
 public final class Tokenizer implements Closeable {
     @SuppressWarnings("unchecked")
-    private static final SequenceMatcher<Integer>[] EMPTY_MATCHER_ARRAY =
+    private static final SequenceMatcher<Byte>[] EMPTY_SEQUENCE_MATCHER_ARRAY =
             new SequenceMatcher[0];
 
 
-    private static final MultiSequenceMatcher<Integer> WHITESPACE_MATCHER =
+    private static final MultiSequenceMatcher<Byte> WHITESPACE_MATCHER =
             new MultiSequenceMatcher<>(
-                    new SequenceMatcher<>(0x09),    // Tab
-                    new SequenceMatcher<>(0x0A),    // Line feed
+                    new SequenceMatcher<>((byte) 0x09), // Tab
+                    new SequenceMatcher<>((byte) 0x0A), // Line feed
                     new SequenceMatcher<>(
-                            0x0D,                   // Carriage Return
-                            0x0A                    // Line Feed
+                            (byte) 0x0D,                // Carriage Return
+                            (byte) 0x0A                 // Line Feed
                     ),
-                    new SequenceMatcher<>(0x20)     // Space
+                    new SequenceMatcher<>((byte) 0x20)  // Space
             );
 
-    private static final SequenceMatcher<Integer> COMMENT_START_MATCHER =
+    private static final SequenceMatcher<Byte> COMMENT_START_MATCHER =
             new SequenceMatcher<>(
-                    0x2F,   // Slash
-                    0x2A    // Asterisk
+                    (byte) 0x2F,    // Slash
+                    (byte) 0x2A     // Asterisk
             );
 
-    private static final SequenceMatcher<Integer> COMMENT_END_MATCHER =
+    private static final SequenceMatcher<Byte> COMMENT_END_MATCHER =
             new SequenceMatcher<>(
-                    0x2A,   // Asterisk
-                    0x2F    // Slash
+                    (byte) 0x2A,    // Asterisk
+                    (byte) 0x2F     // Slash
             );
 
     private static final Map<
-            SequenceMatcher<Integer>,
+            SequenceMatcher<Byte>,
             KeywordToken.Keyword
             > KEYWORD_MATCHERS;
 
-    private static final MultiSequenceMatcher<Integer> KEYWORD_MATCHER;
+    private static final MultiSequenceMatcher<Byte> KEYWORD_MATCHER;
 
     static {
         KEYWORD_MATCHERS = Arrays.stream(KeywordToken.Keyword.values())
@@ -57,8 +57,8 @@ public final class Tokenizer implements Closeable {
                         new SequenceMatcher<>(
                                 k.getCharSequence()
                                         .chars()
-                                        .boxed()
-                                        .toArray(Integer[]::new)
+                                        .mapToObj(c -> (byte) c)
+                                        .toArray(Byte[]::new)
                         ),
                         k
                 ))
@@ -69,7 +69,7 @@ public final class Tokenizer implements Closeable {
 
         KEYWORD_MATCHER = new MultiSequenceMatcher<>(
                 Tokenizer.KEYWORD_MATCHERS.keySet()
-                        .toArray(Tokenizer.EMPTY_MATCHER_ARRAY)
+                        .toArray(Tokenizer.EMPTY_SEQUENCE_MATCHER_ARRAY)
         );
     }
 
@@ -81,9 +81,9 @@ public final class Tokenizer implements Closeable {
                 || (c == 0x2E);             // Dot
     }
 
-    private final Sequence<Integer> source;
+    private final Sequence<Byte> source;
 
-    public Tokenizer(Sequence<Integer> src) {
+    public Tokenizer(Sequence<Byte> src) {
         this.source = src;
     }
 
@@ -116,7 +116,7 @@ public final class Tokenizer implements Closeable {
             }
         } while (skipped);
 
-        Optional<SequenceMatcher<Integer>> keywordMatcher;
+        Optional<SequenceMatcher<Byte>> keywordMatcher;
 
         try {
             keywordMatcher = Tokenizer.KEYWORD_MATCHER.skip(this.source);

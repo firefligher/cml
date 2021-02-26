@@ -8,7 +8,7 @@ import java.util.Objects;
  * A {@link Sequence} implementation that simply wraps an {@link InputStream}
  * instance.
  */
-public final class InputStreamSequence extends AbstractSequence<Integer> {
+public final class InputStreamSequence extends AbstractSequence<Byte> {
     private final InputStream source;
 
     /**
@@ -27,14 +27,14 @@ public final class InputStreamSequence extends AbstractSequence<Integer> {
     }
 
     @Override
-    protected Integer read0() throws IOException {
+    protected Byte read0() throws IOException {
         int nextByte = this.source.read();
 
         if (nextByte < 0) {
             return -1;
         }
 
-        return nextByte;
+        return (byte) nextByte;
     }
 
     @Override
