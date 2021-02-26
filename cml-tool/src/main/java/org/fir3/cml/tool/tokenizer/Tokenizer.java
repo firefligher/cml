@@ -166,9 +166,9 @@ public final class Tokenizer implements Closeable {
 
         while (true) {
             this.source.mark(1);
-            int character = this.source.read();
+            Integer character = this.source.read();
 
-            if (character == -1) {
+            if (character == null) {
                 throw new EOFException();
             }
 
@@ -177,7 +177,7 @@ public final class Tokenizer implements Closeable {
                 break;
             }
 
-            builder.append((char) character);
+            builder.append((char) (int) character);
         }
 
         if (builder.length() == 0) {
