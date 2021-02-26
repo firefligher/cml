@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class InputStreamSequenceTest {
     private static final byte[] TEST_SEQUENCE = new byte[] {
@@ -29,6 +30,10 @@ public class InputStreamSequenceTest {
         for (byte value : InputStreamSequenceTest.TEST_SEQUENCE) {
             assertEquals(value, seq.read());
         }
+
+        // Asserting that EOF is indicated by 'null'
+
+        assertNull(seq.read());
 
         // Cleaning up
 
