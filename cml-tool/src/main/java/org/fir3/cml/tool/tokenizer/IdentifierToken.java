@@ -3,13 +3,8 @@ package org.fir3.cml.tool.tokenizer;
 import java.util.Objects;
 
 /**
- * A token that represents an identifier.
- *
- * <p>
- *     Note that an identifier may be both, a domain identifier or an
- *     attribute-/model-identifier, although these two differ on the set of
- *     characters that they are allowed to consist of.
- * </p>
+ * A token that represents the identifier of a model, an attribute or domain
+ * segment.
  */
 public final class IdentifierToken implements Token {
     private final String identifier;

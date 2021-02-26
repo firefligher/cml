@@ -11,6 +11,7 @@ public final class KeywordToken implements Token {
         Builtin("builtin"),
         Comma(","),
         Domain("domain"),
+        Dot("."),
         LeftBrace("{"),
         LeftChevron("<"),
         Model("model"),

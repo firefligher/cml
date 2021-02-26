@@ -15,7 +15,13 @@ public class TokenizerTest {
             // Line 1
             new KeywordToken(KeywordToken.Keyword.Ubiquitous),
             new KeywordToken(KeywordToken.Keyword.Domain),
-            new IdentifierToken("org.fir3.cml.builtin"),
+            new IdentifierToken("org"),
+            new KeywordToken(KeywordToken.Keyword.Dot),
+            new IdentifierToken("fir3"),
+            new KeywordToken(KeywordToken.Keyword.Dot),
+            new IdentifierToken("cml"),
+            new KeywordToken(KeywordToken.Keyword.Dot),
+            new IdentifierToken("__builtin__"),
             new KeywordToken(KeywordToken.Keyword.Semicolon),
 
             // Line 3
