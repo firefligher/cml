@@ -1,6 +1,4 @@
-package org.fir3.cml.tool.tokenizer;
-
-import org.fir3.cml.tool.util.seq.Sequence;
+package org.fir3.cml.tool.util.seq;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,7 +13,7 @@ import java.util.Optional;
  * @param <TElement>    The type of elements that this instance of
  *                      <code>MultiSequenceMatcher</code> matches with.
  */
-final class MultiSequenceMatcher<TElement> {
+public final class MultiSequenceMatcher<TElement> {
     /**
      * A comparator that may be used for sorting {@link SequenceMatcher}s by
      * their byte sequence length: The longer their byte sequence is, the

@@ -2,6 +2,7 @@ package org.fir3.cml.tool.tokenizer;
 
 import org.fir3.cml.tool.util.seq.InputStreamSequence;
 import org.fir3.cml.tool.util.seq.Sequence;
+import org.fir3.cml.tool.util.seq.SequenceMatcher;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

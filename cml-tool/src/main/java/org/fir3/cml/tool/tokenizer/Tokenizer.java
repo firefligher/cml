@@ -2,7 +2,9 @@ package org.fir3.cml.tool.tokenizer;
 
 import org.fir3.cml.tool.exception.TokenizerException;
 import org.fir3.cml.tool.util.seq.AbstractSequence;
+import org.fir3.cml.tool.util.seq.MultiSequenceMatcher;
 import org.fir3.cml.tool.util.seq.Sequence;
+import org.fir3.cml.tool.util.seq.SequenceMatcher;
 
 import java.io.EOFException;
 import java.io.IOException;

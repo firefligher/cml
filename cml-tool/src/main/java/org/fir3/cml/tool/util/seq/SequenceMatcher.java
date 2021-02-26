@@ -1,6 +1,4 @@
-package org.fir3.cml.tool.tokenizer;
-
-import org.fir3.cml.tool.util.seq.Sequence;
+package org.fir3.cml.tool.util.seq;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -13,7 +11,7 @@ import java.util.Arrays;
  * @param <TElement>    The type of the elements that this
  *                      <code>SequenceMatcher</code> matches with
  */
-final class SequenceMatcher<TElement> {
+public final class SequenceMatcher<TElement> {
     private final TElement[] sequence;
 
     /**
@@ -28,7 +26,7 @@ final class SequenceMatcher<TElement> {
      *                                  is empty.
      */
     @SafeVarargs
-    SequenceMatcher(TElement... sequence) {
+    public SequenceMatcher(TElement... sequence) {
         if (sequence.length < 1) {
             throw new IllegalArgumentException("sequence too short");
         }
