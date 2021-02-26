@@ -54,24 +54,25 @@ public final class SequenceMatcher<TElement> {
      */
     public boolean matches(Sequence<TElement> src, boolean skipIfMatches)
             throws IOException {
-        src.mark(this.sequence.length);
+        try (Sequence.Mark mark = src.mark()) {
+            // Read until a non-matching byte occurs or the end of the sequence
+            // is reached.
 
-        // Read until a non-matching byte occurs or the end of the sequence
-        // is reached.
-
-        for (TElement seqByte : this.sequence) {
-            try {
-                if (seqByte == src.read()) {
-                    continue;
+            for (TElement seqByte : this.sequence) {
+                try {
+                    if (seqByte == src.read()) {
+                        continue;
+                    }
+                } catch (EOFException ignored) {
                 }
-            } catch (EOFException ignored) { }
 
-            src.reset();
-            return false;
-        }
+                mark.reset();
+                return false;
+            }
 
-        if (!skipIfMatches) {
-            src.reset();
+            if (!skipIfMatches) {
+                mark.reset();
+            }
         }
 
         return true;

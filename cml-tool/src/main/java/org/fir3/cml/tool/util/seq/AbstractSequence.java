@@ -1,7 +1,7 @@
 package org.fir3.cml.tool.util.seq;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * An abstract implementation of the {@link Sequence} interface that provides a
@@ -12,27 +12,43 @@ import java.util.Arrays;
  */
 public abstract class AbstractSequence<TElement>
         implements Sequence<TElement> {
-    /**
-     * The number of elements that have been buffered at the beginning of the
-     * {@link #buffer} and shall be read from there before the next element is
-     * directly read from the sequence by calling {@link #read0()}.
-     */
-    private int readBuffer;
 
-    /**
-     * The index of the slot of {@link #buffer} that the next element, which is
-     * read by calling {@link #read0()}, shall be stored at.
-     */
-    private int bufferPointer;
+    private class MarkImpl implements Mark {
+        private final List<TElement> buffer;
 
-    /**
-     * An array that stores the buffered elements.
-     */
-    private TElement[] buffer;
+        public MarkImpl(List<TElement> buffer) {
+            this.buffer = buffer;
+        }
 
-    @SuppressWarnings("unchecked")
+        @Override
+        public void reset() {
+            AbstractSequence.this.reset(this);
+        }
+
+        @Override
+        public void close() {
+            AbstractSequence.this.remove(this);
+        }
+
+        public void add(TElement element) {
+            this.buffer.add(element);
+        }
+
+        public void addAll(Collection<TElement> elements) {
+            this.buffer.addAll(elements);
+        }
+
+        public List<TElement> getBuffer() {
+            return this.buffer;
+        }
+    }
+
+    private final Stack<MarkImpl> marks;
+    private final Queue<TElement> buffer;
+
     protected AbstractSequence() {
-        this.buffer = (TElement[]) new Object[0];
+        this.marks = new Stack<>();
+        this.buffer = new LinkedList<>();
     }
 
     /**
@@ -55,63 +71,74 @@ public abstract class AbstractSequence<TElement>
     protected abstract void close0() throws IOException;
 
     @Override
-    public final TElement read() throws IOException {
-        // If the readBuffer is greater than zero, the requested element will
-        // be read from the beginning of the buffer.
-
-        if (this.readBuffer > 0) {
-            int elementIndex = this.bufferPointer - this.readBuffer;
-            this.readBuffer--;
-            return this.buffer[elementIndex];
+    public TElement read() throws IOException {
+        if (!this.buffer.isEmpty()) {
+            return this.buffer.poll();
         }
 
-        // Otherwise, the next element will be read from the actual sequence
-        // implementation by calling read0. Also, if the bufferPointer is
-        // pointing to a valid index of buffer, the read element will be stored
-        // there.
+        TElement nextElement = this.read0();
 
-        TElement element = this.read0();
-
-        if (this.bufferPointer < this.buffer.length) {
-            this.buffer[this.bufferPointer] = element;
-            this.bufferPointer++;
+        if (!this.marks.empty()) {
+            this.marks.peek().add(nextElement);
         }
 
-        return element;
+        return nextElement;
     }
 
     @Override
-    public void mark(int elementCount) {
-        // If elementCount is greater than the total length of the buffer
-        // array, we need to enlarge the buffer (without loosing its current
-        // data).
-
-        if (elementCount > this.buffer.length) {
-            this.buffer = Arrays.copyOf(this.buffer, elementCount);
-        }
-
-        // Moving the elements of the readBuffer to the beginning of the
-        // buffer (if there are any).
-
-        System.arraycopy(
-                this.buffer, this.bufferPointer - this.readBuffer,
-                this.buffer, 0, this.readBuffer
-        );
-
-        // Adjusting the bufferPointer to match the new buffer
-
-        this.bufferPointer = this.readBuffer;
+    public Mark mark() {
+        return this.marks.push(new MarkImpl(new ArrayList<>(this.buffer)));
     }
 
     @Override
-    public void reset() {
-        this.readBuffer = this.bufferPointer;
-    }
+    public void close() throws IOException {
+        this.buffer.clear();
+        this.marks.clear();
 
-    @Override
-    public final void close() throws IOException {
-        this.readBuffer = 0;
-        this.bufferPointer = 0;
         this.close0();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void reset(Mark mark) {
+        this.removeMarksAbove(mark);
+
+        // Setting the buffer to the buffer of the mark
+
+        MarkImpl typedMark = (MarkImpl) mark;
+
+        this.buffer.clear();
+        this.buffer.addAll(typedMark.getBuffer());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void remove(Mark mark) {
+        this.removeMarksAbove(mark);
+
+        // Removing the mark from the marks stack and, if there is a mark
+        // bellow, copying the buffer of the original mark to its parent.
+
+        this.marks.pop();
+
+        if (this.marks.empty()) {
+            return;
+        }
+
+        this.marks.peek().addAll(((MarkImpl) mark).getBuffer());
+    }
+
+    private void removeMarksAbove(Mark mark) {
+        while (!this.marks.empty()) {
+            Mark topmostMark = this.marks.peek();
+
+            if (topmostMark == mark) {
+                break;
+            }
+
+            this.remove(topmostMark);
+        }
+
+        if (this.marks.empty()) {
+            throw new IllegalArgumentException("Invalid mark");
+        }
     }
 }

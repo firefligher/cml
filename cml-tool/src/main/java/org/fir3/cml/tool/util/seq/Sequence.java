@@ -4,15 +4,28 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * A sequence is a limited-seekable stream of objects that has similarities to
- * Java's {@link java.io.InputStream}.
+ * A sequence is a readable stream of objects that supports gradual rollbacks.
  */
 public interface Sequence<TElement> extends Closeable {
+    /**
+     * The generic interface of the instance that will be returned when calling
+     * {@link Sequence#mark()}.
+     */
+    interface Mark extends AutoCloseable {
+        /**
+         * Resets the corresponding {@link Sequence} to the marked state.
+         */
+        void reset();
+
+        @Override
+        void close();
+    }
+
     /**
      * Reads the next element from the sequence.
      *
      * @return  Either the next element of the sequence or <code>null</code>,
-     *          if the end of the stream has been reached.
+     *          if the end of the sequence has been reached.
      *
      * @throws IOException  If an input-/output-error occurs while reading the
      *                      next element.
@@ -20,26 +33,12 @@ public interface Sequence<TElement> extends Closeable {
     TElement read() throws IOException;
 
     /**
-     * Remembers the current position in the sequence and buffers all elements,
-     * that will be read from this sequence, until <code>elementCount</code> is
-     * reached.
+     * Marks the current state of the {@link Sequence} and enables the caller
+     * to reset this {@link Sequence} instance to the current state by calling
+     * {@link Mark#reset()} of the returned {@link Mark} instance.
      *
-     * Until <code>elementCount</code> is reached, the mark stays valid you may
-     * rewind the sequence back to the last mark's state by calling
-     * {@link #reset()}.
-     *
-     * @param elementCount  The number of elements that can be read safely
-     *                      without invalidating the new mark.
+     * @return  The mark that has been created for this {@link Sequence}
+     *          instance.
      */
-    void mark(int elementCount);
-
-    /**
-     * Rewinds the sequence to the last valid mark that has been created by
-     * calling {@link #mark(int)}.
-     *
-     * If there is no valid mark (anymore), the behavior of this method is
-     * undefined and the sequence may be in an unsafe state after the
-     * method-call returns.
-     */
-    void reset();
+    Mark mark();
 }

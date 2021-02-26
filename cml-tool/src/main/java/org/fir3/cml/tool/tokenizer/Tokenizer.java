@@ -164,16 +164,19 @@ public final class Tokenizer extends AbstractSequence<Token> {
         StringBuilder builder = new StringBuilder();
 
         while (true) {
-            this.source.mark(1);
-            Byte character = this.source.read();
+            Byte character;
 
-            if (character == null) {
-                throw new EOFException();
-            }
+            try (Mark mark = this.source.mark()) {
+                character = this.source.read();
 
-            if (!Tokenizer.isIdentifierCharacter(character)) {
-                this.source.reset();
-                break;
+                if (character == null) {
+                    throw new EOFException();
+                }
+
+                if (!Tokenizer.isIdentifierCharacter(character)) {
+                    mark.reset();
+                    break;
+                }
             }
 
             builder.append((char) (int) character);

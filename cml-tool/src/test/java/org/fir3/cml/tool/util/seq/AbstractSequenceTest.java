@@ -59,53 +59,22 @@ public class AbstractSequenceTest {
         Sequence<Integer> seq = new TestSequence<>(
                 AbstractSequenceTest.TEST_SEQUENCE);
 
-        // Setting up a mark of five
+        try (Sequence.Mark mark = seq.mark()) {
+            // Reading the first five elements and asserting that they match
+            // the ones of the original array
 
-        seq.mark(5);
+            for (int index = 0; index < 5; index++) {
+                assertEquals(
+                        AbstractSequenceTest.TEST_SEQUENCE[index],
+                        seq.read()
+                );
+            }
 
-        // Reading the first five elements and asserting that they match the
-        // ones of the original array
+            // Resetting the sequence (which should still be valid) and all
+            // elements, including the first five
 
-        for (int index = 0; index < 5; index++) {
-            assertEquals(
-                    AbstractSequenceTest.TEST_SEQUENCE[index],
-                    seq.read()
-            );
+            mark.reset();
         }
-
-        // Resetting the sequence (which should still be valid) and all
-        // elements, including the first five
-
-        seq.reset();
-
-        for (int value : AbstractSequenceTest.TEST_SEQUENCE) {
-            assertEquals(value, seq.read());
-        }
-
-        seq.close();
-    }
-
-    @Test
-    public void testMarkAndResetPartially() throws IOException {
-        Sequence<Integer> seq = new TestSequence<>(
-                AbstractSequenceTest.TEST_SEQUENCE);
-
-        // Setting up a mark of five
-
-        seq.mark(5);
-
-        // Reading only the first three elements
-
-        for (int index = 0; index < 3; index++) {
-            assertEquals(
-                    AbstractSequenceTest.TEST_SEQUENCE[index],
-                    seq.read()
-            );
-        }
-
-        // Resetting the sequence and reading the total sequence
-
-        seq.reset();
 
         for (int value : AbstractSequenceTest.TEST_SEQUENCE) {
             assertEquals(value, seq.read());
@@ -119,8 +88,9 @@ public class AbstractSequenceTest {
         Sequence<Integer> seq = new TestSequence<>(
                 AbstractSequenceTest.TEST_SEQUENCE);
 
-        seq.mark(5);
-        seq.reset();
+        try (Sequence.Mark mark = seq.mark()) {
+            mark.reset();
+        }
 
         for (int value : AbstractSequenceTest.TEST_SEQUENCE) {
             assertEquals(value, seq.read());
@@ -136,47 +106,48 @@ public class AbstractSequenceTest {
 
         // First iteration
 
-        seq.mark(5);
-        seq.reset();
+        try (Sequence.Mark mark = seq.mark()) {
+            mark.reset();
+        }
 
         // Second iteration
 
-        seq.mark(2);
+        try (Sequence.Mark mark = seq.mark()) {
+            for (int index = 0; index < 2; index++) {
+                assertEquals(
+                        AbstractSequenceTest.TEST_SEQUENCE[index],
+                        seq.read()
+                );
+            }
 
-        for (int index = 0; index < 2; index++) {
-            assertEquals(
-                    AbstractSequenceTest.TEST_SEQUENCE[index],
-                    seq.read()
-            );
+            mark.reset();
         }
-
-        seq.reset();
 
         // Third iteration
 
-        seq.mark(4);
+        try (Sequence.Mark mark = seq.mark()) {
+            for (int index = 0; index < 3; index++) {
+                assertEquals(
+                        AbstractSequenceTest.TEST_SEQUENCE[index],
+                        seq.read()
+                );
+            }
 
-        for (int index = 0; index < 3; index++) {
-            assertEquals(
-                    AbstractSequenceTest.TEST_SEQUENCE[index],
-                    seq.read()
-            );
+            mark.reset();
         }
-
-        seq.reset();
 
         // Fourth iteration
 
-        seq.mark(5);
+        try (Sequence.Mark mark = seq.mark()) {
+            for (int index = 0; index < 1; index++) {
+                assertEquals(
+                        AbstractSequenceTest.TEST_SEQUENCE[index],
+                        seq.read()
+                );
+            }
 
-        for (int index = 0; index < 1; index++) {
-            assertEquals(
-                    AbstractSequenceTest.TEST_SEQUENCE[index],
-                    seq.read()
-            );
+            mark.reset();
         }
-
-        seq.reset();
 
         // Final iteration
 
@@ -185,5 +156,42 @@ public class AbstractSequenceTest {
         }
 
         seq.close();
+    }
+
+    @Test
+    public void testNestedMarks() throws IOException {
+        Sequence<Integer> seq = new TestSequence<>(
+                AbstractSequenceTest.TEST_SEQUENCE);
+
+        try (Sequence.Mark m1 = seq.mark()) {
+            try (Sequence.Mark m2 = seq.mark()) {
+                try (Sequence.Mark m3 = seq.mark()) {
+                    assertEquals(
+                            AbstractSequenceTest.TEST_SEQUENCE[0],
+                            seq.read()
+                    );
+                }
+
+                for (
+                        int i = 1;
+                        i < AbstractSequenceTest.TEST_SEQUENCE.length;
+                        i++
+                ) {
+                    assertEquals(
+                            AbstractSequenceTest.TEST_SEQUENCE[i],
+                            seq.read()
+                    );
+                }
+            }
+
+            m1.reset();
+        }
+
+        for (int i = 0; i < AbstractSequenceTest.TEST_SEQUENCE.length; i++) {
+            assertEquals(
+                    AbstractSequenceTest.TEST_SEQUENCE[i],
+                    seq.read()
+            );
+        }
     }
 }
