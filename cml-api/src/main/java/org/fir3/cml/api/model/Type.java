@@ -1,5 +1,7 @@
 package org.fir3.cml.api.model;
 
+import java.util.List;
+
 /**
  * A type specifies the way that a corresponding value shall be interpreted.
  */
@@ -21,7 +23,8 @@ public interface Type {
     }
 
     /**
-     * A model type is directly derived from a defined model.
+     * A model type is directly derived from a defined model and must always
+     * fill all type parameters of this model.
      */
     interface ModelType extends Type {
         /**
@@ -30,6 +33,15 @@ public interface Type {
          * @return  The name of the model that this type was derived from.
          */
         String getModelName();
+
+        /**
+         * Returns the list of types that fill the type parameters of the model
+         * that is referenced by this instance.
+         *
+         * @return  The list of types that fill the type parameters of the
+         *          referenced model
+         */
+        List<Type> getTypeParameters();
     }
 
     /**

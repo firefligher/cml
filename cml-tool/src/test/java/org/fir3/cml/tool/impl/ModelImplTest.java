@@ -19,12 +19,12 @@ public class ModelImplTest {
 
     private static final Attribute TEST_ATTRIBUTE_1 = new AttributeImpl(
             "testAttribute1",
-            new ModelTypeImpl("UnknownModel")
+            new ModelTypeImpl("UnknownModel", Collections.emptyList())
     );
 
     private static final Attribute TEST_ATTRIBUTE_2 = new AttributeImpl(
             "testAttribute2",
-            new ModelTypeImpl("UnknownModel")
+            new ModelTypeImpl("UnknownModel", Collections.emptyList())
     );
 
     @Test
