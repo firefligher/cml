@@ -1,9 +1,9 @@
 package org.fir3.cml.tool.tokenizer;
 
 import org.fir3.cml.tool.exception.TokenizerException;
+import org.fir3.cml.tool.util.seq.AbstractSequence;
 import org.fir3.cml.tool.util.seq.Sequence;
 
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * The tokenizer reads {@link Token}s from a byte source.
  */
-public final class Tokenizer implements Closeable {
+public final class Tokenizer extends AbstractSequence<Token> {
     @SuppressWarnings("unchecked")
     private static final SequenceMatcher<Byte>[] EMPTY_SEQUENCE_MATCHER_ARRAY =
             new SequenceMatcher[0];
@@ -88,29 +88,14 @@ public final class Tokenizer implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
-        this.source.close();
-    }
-
-    /**
-     * Read the next token from the byte source that this instance was
-     * initialized with.
-     *
-     * @return  An {@link Optional} container that either contains a valid
-     *          {@link Token} instance, or <code>null</code>, if the end of the
-     *          underlying stream has been reached already.
-     *
-     * @throws TokenizerException   If the next bytes of the underlying stream
-     *                              do not form a valid token.
-     */
-    public Optional<Token> nextToken() throws TokenizerException {
+    protected Token read0() throws IOException {
         boolean skipped;
 
         do {
             try {
                 skipped = this.skipWhitespace() || this.skipComment();
             } catch (EOFException ignored) {
-                return Optional.empty();
+                return null;
             } catch (IOException ex) {
                 throw new TokenizerException(ex);
             }
@@ -125,22 +110,29 @@ public final class Tokenizer implements Closeable {
         }
 
         if (keywordMatcher.isPresent()) {
-            return keywordMatcher.map(m -> new KeywordToken(
-                    Tokenizer.KEYWORD_MATCHERS.get(m)
+            return new KeywordToken(Tokenizer.KEYWORD_MATCHERS.get(
+                    keywordMatcher.get()
             ));
         }
 
         try {
-            return Optional.of(new IdentifierToken(
-                    this.parseIdentifier().orElseThrow(
-                            () -> new TokenizerException("Unknown token")
-                    )
-            ));
+            Optional<String> identifier = this.parseIdentifier();
+
+            if (!identifier.isPresent()) {
+                throw new TokenizerException("Unknown token");
+            }
+
+            return new IdentifierToken(identifier.get());
         } catch (EOFException ignored) {
-            return Optional.empty();
+            return null;
         } catch (IOException ex) {
             throw new TokenizerException(ex);
         }
+    }
+
+    @Override
+    protected void close0() throws IOException {
+        this.source.close();
     }
 
     private boolean skipWhitespace() throws IOException {
