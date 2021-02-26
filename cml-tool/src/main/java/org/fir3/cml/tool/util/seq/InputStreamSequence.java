@@ -31,7 +31,7 @@ public final class InputStreamSequence extends AbstractSequence<Integer> {
         int nextByte = this.source.read();
 
         if (nextByte < 0) {
-            return null;
+            return -1;
         }
 
         return nextByte;

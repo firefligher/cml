@@ -145,9 +145,9 @@ public class SequenceMatcherTest {
             assertFalse(matcher.skip(src));
 
             try (ByteArrayOutputStream dst = new ByteArrayOutputStream()) {
-                Integer next;
+                int next;
 
-                while ((next = src.read()) != null) {
+                while ((next = src.read()) > -1) {
                     dst.write(next);
                 }
 
