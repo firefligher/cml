@@ -11,7 +11,7 @@ import org.fir3.cml.tool.util.seq.SequenceMatcher;
 import java.io.IOException;
 import java.util.Optional;
 
-public class AttributeParser implements EntityParser<Attribute> {
+final class AttributeParser implements EntityParser<Attribute> {
     private static final SequenceMatcher<Token> SEMICOLON_MATCHER =
             new SequenceMatcher<>(new KeywordToken(
                     KeywordToken.Keyword.Semicolon

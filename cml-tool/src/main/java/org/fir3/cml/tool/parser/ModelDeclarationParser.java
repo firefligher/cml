@@ -14,7 +14,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-public class ModelDeclarationParser implements EntityParser<ModelDeclaration> {
+final class ModelDeclarationParser implements EntityParser<ModelDeclaration> {
     private static final SequenceMatcher<Token> BUILTIN_MATCHER =
             new SequenceMatcher<>(new KeywordToken(
                     KeywordToken.Keyword.Builtin

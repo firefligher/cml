@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class ModelParser implements EntityParser<Model> {
+final class ModelParser implements EntityParser<Model> {
     private static final SequenceMatcher<Token> SEMICOLON_MATCHER =
             new SequenceMatcher<>(new KeywordToken(
                     KeywordToken.Keyword.Semicolon
