@@ -2,10 +2,7 @@ package org.fir3.cml.api.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -70,5 +67,28 @@ public class EnvironmentTest {
         Set<Domain> actualDomains = env.getDomains();
         assertEquals(1, actualDomains.size());
         assertTrue(actualDomains.contains(EnvironmentTest.TEST_DOMAIN_1));
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        Environment env1 = new Environment(new HashSet<>(
+                Collections.singletonList(new Domain(
+                        "test_domain",
+                        EnumSet.of(Domain.Flag.Ubiquitous),
+                        Collections.emptySet()
+                ))
+        ));
+
+        Environment env2 = new Environment(new HashSet<>(
+                Collections.singletonList(new Domain(
+                        "test_domain",
+                        EnumSet.of(Domain.Flag.Ubiquitous),
+                        Collections.emptySet()
+                ))
+        ));
+
+        assertEquals(env1, env2);
+        assertEquals(env2, env1);
+        assertEquals(env1.hashCode(), env2.hashCode());
     }
 }

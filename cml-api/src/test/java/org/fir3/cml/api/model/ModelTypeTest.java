@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,5 +84,22 @@ public class ModelTypeTest {
                 ((ParameterType) actualTypeParameters.get(1))
                         .getTypeParameterName()
         );
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        ModelType modelType1 = new ModelType(
+                "TestModel",
+                Collections.singletonList(new ParameterType("Param"))
+        );
+
+        ModelType modelType2 = new ModelType(
+                "TestModel",
+                Collections.singletonList(new ParameterType("Param"))
+        );
+
+        assertEquals(modelType1, modelType2);
+        assertEquals(modelType2, modelType1);
+        assertEquals(modelType1.hashCode(), modelType2.hashCode());
     }
 }

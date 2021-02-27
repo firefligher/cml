@@ -120,4 +120,31 @@ public class ModelTest {
         assertEquals(1, actualAttributes.size());
         assertTrue(actualAttributes.contains(ModelTest.TEST_ATTRIBUTE_1));
     }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        Model model1 = new Model(
+                "TestModel",
+                EnumSet.of(Model.Flag.Builtin),
+                Collections.singletonList(new TypeParameter("Param")),
+                Collections.singleton(new Attribute(
+                        "_TestAttribute",
+                        new ParameterType("Param")
+                ))
+        );
+
+        Model model2 = new Model(
+                "TestModel",
+                EnumSet.of(Model.Flag.Builtin),
+                Collections.singletonList(new TypeParameter("Param")),
+                Collections.singleton(new Attribute(
+                        "_TestAttribute",
+                        new ParameterType("Param")
+                ))
+        );
+
+        assertEquals(model1, model2);
+        assertEquals(model2, model1);
+        assertEquals(model1.hashCode(), model2.hashCode());
+    }
 }

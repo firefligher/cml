@@ -2,10 +2,7 @@ package org.fir3.cml.api.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -99,5 +96,34 @@ public class DomainTest {
         Set<Model> actualModels = domain.getModels();
         assertEquals(1, actualModels.size());
         assertTrue(actualModels.contains(DomainTest.TEST_MODEL_1));
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        Domain domain1 = new Domain(
+                "test_domain",
+                EnumSet.of(Domain.Flag.Ubiquitous),
+                Collections.singleton(new Model(
+                        "TestModel1",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Collections.emptyList(),
+                        Collections.emptySet()
+                ))
+        );
+
+        Domain domain2 = new Domain(
+                "test_domain",
+                EnumSet.of(Domain.Flag.Ubiquitous),
+                Collections.singleton(new Model(
+                        "TestModel1",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Collections.emptyList(),
+                        Collections.emptySet()
+                ))
+        );
+
+        assertEquals(domain1, domain2);
+        assertEquals(domain2, domain1);
+        assertEquals(domain1.hashCode(), domain2.hashCode());
     }
 }
