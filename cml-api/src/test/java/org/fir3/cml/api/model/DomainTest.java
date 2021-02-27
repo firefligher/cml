@@ -1,6 +1,5 @@
-package org.fir3.cml.tool.impl;
+package org.fir3.cml.api.model;
 
-import org.fir3.cml.api.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -11,15 +10,15 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DomainImplTest {
-    private static final Model TEST_MODEL_1 = new ModelImpl(
+public class DomainTest {
+    private static final Model TEST_MODEL_1 = new Model(
             "TestModel1",
             EnumSet.noneOf(Model.Flag.class),
             Collections.emptyList(),
             Collections.emptySet()
     );
 
-    private static final Model TEST_MODEL_2 = new ModelImpl(
+    private static final Model TEST_MODEL_2 = new Model(
             "TestModel2",
             EnumSet.noneOf(Model.Flag.class),
             Collections.emptyList(),
@@ -33,11 +32,11 @@ public class DomainImplTest {
         EnumSet<Domain.Flag> flags = EnumSet.of(Domain.Flag.Ubiquitous);
 
         Set<Model> models = new HashSet<>();
-        models.add(DomainImplTest.TEST_MODEL_1);
+        models.add(DomainTest.TEST_MODEL_1);
 
         // Instantiating Domain
 
-        Domain domain = new DomainImpl(
+        Domain domain = new Domain(
                 "org.example.test",
                 flags,
                 models
@@ -47,8 +46,8 @@ public class DomainImplTest {
 
         flags.remove(Domain.Flag.Ubiquitous);
 
-        models.remove(DomainImplTest.TEST_MODEL_1);
-        models.add(DomainImplTest.TEST_MODEL_2);
+        models.remove(DomainTest.TEST_MODEL_1);
+        models.add(DomainTest.TEST_MODEL_2);
 
         // The Domain instance must not have changed.
 
@@ -58,15 +57,15 @@ public class DomainImplTest {
 
         Set<Model> actualModels = domain.getModels();
         assertEquals(1, actualModels.size());
-        assertTrue(actualModels.contains(DomainImplTest.TEST_MODEL_1));
+        assertTrue(actualModels.contains(DomainTest.TEST_MODEL_1));
     }
 
     @Test
     public void testUnmodifiability() {
-        Domain domain = new DomainImpl(
+        Domain domain = new Domain(
                 "org.example.test",
                 EnumSet.of(Domain.Flag.Ubiquitous),
-                Collections.singleton(DomainImplTest.TEST_MODEL_1)
+                Collections.singleton(DomainTest.TEST_MODEL_1)
         );
 
         // Modifying the new Domain instance by modifying the collections that
@@ -91,14 +90,14 @@ public class DomainImplTest {
         Set<Model> models = domain.getModels();
 
         try {
-            models.remove(DomainImplTest.TEST_MODEL_1);
-            models.add(DomainImplTest.TEST_MODEL_2);
+            models.remove(DomainTest.TEST_MODEL_1);
+            models.add(DomainTest.TEST_MODEL_2);
         } catch (Throwable ignored) {
             // Not mandatory for this test.
         }
 
         Set<Model> actualModels = domain.getModels();
         assertEquals(1, actualModels.size());
-        assertTrue(actualModels.contains(DomainImplTest.TEST_MODEL_1));
+        assertTrue(actualModels.contains(DomainTest.TEST_MODEL_1));
     }
 }

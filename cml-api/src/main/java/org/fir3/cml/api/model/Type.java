@@ -1,9 +1,15 @@
 package org.fir3.cml.api.model;
 
-import java.util.List;
-
 /**
  * A type specifies the way that a corresponding value shall be interpreted.
+ *
+ * <p>
+ *     If two instances <code>a</code> and <code>b</code> of <code>Type</code>
+ *     belong to the same category and have the same category-specific details,
+ *     both instances are considered to be equal and both,
+ *     <code>a.equals(b)</code> and <code>b.equals(a)</code>, must return
+ *     <code>true</code>.
+ * </p>
  */
 public interface Type {
     /**
@@ -20,40 +26,6 @@ public interface Type {
          * The type depends on the value of a type parameter.
          */
         Parameter
-    }
-
-    /**
-     * A model type is directly derived from a defined model and must always
-     * fill all type parameters of this model.
-     */
-    interface ModelType extends Type {
-        /**
-         * Returns the name of the model that this type was derived from.
-         *
-         * @return  The name of the model that this type was derived from.
-         */
-        String getModelName();
-
-        /**
-         * Returns the list of types that fill the type parameters of the model
-         * that is referenced by this instance.
-         *
-         * @return  The list of types that fill the type parameters of the
-         *          referenced model
-         */
-        List<Type> getTypeParameters();
-    }
-
-    /**
-     * A parameter type depends on the value of a type parameter.
-     */
-    interface ParameterType extends Type {
-        /**
-         * Returns the name of the type parameter that this type depends on.
-         *
-         * @return  The name of the type parameter that this type depends on.
-         */
-        String getTypeParameterName();
     }
 
     /**

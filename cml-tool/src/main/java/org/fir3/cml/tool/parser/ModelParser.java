@@ -2,7 +2,6 @@ package org.fir3.cml.tool.parser;
 
 import org.fir3.cml.api.model.Attribute;
 import org.fir3.cml.api.model.Model;
-import org.fir3.cml.tool.impl.ModelImpl;
 import org.fir3.cml.tool.tokenizer.KeywordToken;
 import org.fir3.cml.tool.tokenizer.Token;
 import org.fir3.cml.tool.util.seq.Sequence;
@@ -60,7 +59,7 @@ final class ModelParser implements EntityParser<Model> {
                     return Optional.empty();
                 }
 
-                return Optional.of(new ModelImpl(
+                return Optional.of(new Model(
                         declaration.getName(),
                         declaration.getFlags(),
                         declaration.getTypeParameters(),
@@ -94,7 +93,7 @@ final class ModelParser implements EntityParser<Model> {
                 return Optional.empty();
             }
 
-            return Optional.of(new ModelImpl(
+            return Optional.of(new Model(
                     declaration.getName(),
                     declaration.getFlags(),
                     declaration.getTypeParameters(),

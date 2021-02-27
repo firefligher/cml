@@ -1,7 +1,9 @@
 package org.fir3.cml.tool.parser;
 
+import org.fir3.cml.api.model.ModelType;
+import org.fir3.cml.api.model.ParameterType;
 import org.fir3.cml.api.model.Type;
-import org.fir3.cml.tool.impl.TypeParameterImpl;
+import org.fir3.cml.api.model.TypeParameter;
 import org.fir3.cml.tool.tokenizer.IdentifierToken;
 import org.fir3.cml.tool.tokenizer.KeywordToken;
 import org.fir3.cml.tool.tokenizer.Token;
@@ -37,7 +39,7 @@ public class TypeParserTest {
             Type type = nullableType.get();
             assertSame(Type.Category.Model, type.getCategory());
 
-            Type.ModelType modelType = (Type.ModelType) type;
+            ModelType modelType = (ModelType) type;
             assertEquals("SimpleType", modelType.getModelName());
             assertTrue(modelType.getTypeParameters().isEmpty());
         }
@@ -58,7 +60,7 @@ public class TypeParserTest {
                     src,
                     ctrl,
                     new Environment(Collections.singleton(
-                            new TypeParameterImpl("Param1")
+                            new TypeParameter("Param1")
                     ))
             );
 
@@ -67,7 +69,7 @@ public class TypeParserTest {
             Type type = nullableType.get();
             assertSame(Type.Category.Parameter, type.getCategory());
 
-            Type.ParameterType parameterType = (Type.ParameterType) type;
+            ParameterType parameterType = (ParameterType) type;
             assertEquals("Param1", parameterType.getTypeParameterName());
         }
     }
@@ -98,9 +100,9 @@ public class TypeParserTest {
                     src,
                     ctrl,
                     new Environment(new HashSet<>(Arrays.asList(
-                            new TypeParameterImpl("Param1"),
-                            new TypeParameterImpl("Param2"),
-                            new TypeParameterImpl("Param3")
+                            new TypeParameter("Param1"),
+                            new TypeParameter("Param2"),
+                            new TypeParameter("Param3")
                     )))
             );
 
@@ -111,7 +113,7 @@ public class TypeParserTest {
 
             // Validate outer model
 
-            Type.ModelType modelType = (Type.ModelType) type;
+            ModelType modelType = (ModelType) type;
             assertEquals("ComplexType", modelType.getModelName());
 
             List<Type> typeParameters = modelType.getTypeParameters();
@@ -123,8 +125,7 @@ public class TypeParserTest {
             assertSame(Type.Category.Parameter, outerFirstType.getCategory());
             assertEquals(
                     "Param1",
-                    ((Type.ParameterType) outerFirstType)
-                            .getTypeParameterName()
+                    ((ParameterType) outerFirstType).getTypeParameterName()
             );
 
             // Validate second type parameter of the outer model
@@ -132,9 +133,7 @@ public class TypeParserTest {
             Type outerSecondType = typeParameters.get(1);
             assertSame(Type.Category.Model, outerSecondType.getCategory());
 
-            Type.ModelType outerSecondModelType =
-                    (Type.ModelType) outerSecondType;
-
+            ModelType outerSecondModelType = (ModelType) outerSecondType;
             assertEquals("ComplexType", outerSecondModelType.getModelName());
 
             List<Type> innerTypeParameters =
@@ -148,8 +147,7 @@ public class TypeParserTest {
             assertSame(Type.Category.Parameter, firstInnerType.getCategory());
             assertEquals(
                     "Param2",
-                    ((Type.ParameterType) firstInnerType)
-                            .getTypeParameterName()
+                    ((ParameterType) firstInnerType).getTypeParameterName()
             );
 
 
@@ -157,8 +155,7 @@ public class TypeParserTest {
             assertSame(Type.Category.Parameter, secondInnerType.getCategory());
             assertEquals(
                     "Param3",
-                    ((Type.ParameterType) secondInnerType)
-                            .getTypeParameterName()
+                    ((ParameterType) secondInnerType).getTypeParameterName()
             );
         }
     }

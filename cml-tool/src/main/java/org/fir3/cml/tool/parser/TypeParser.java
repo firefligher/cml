@@ -1,9 +1,9 @@
 package org.fir3.cml.tool.parser;
 
 import org.fir3.cml.api.model.Type;
+import org.fir3.cml.api.model.ModelType;
+import org.fir3.cml.api.model.ParameterType;
 import org.fir3.cml.api.model.TypeParameter;
-import org.fir3.cml.tool.impl.ModelTypeImpl;
-import org.fir3.cml.tool.impl.ParameterTypeImpl;
 import org.fir3.cml.tool.tokenizer.KeywordToken;
 import org.fir3.cml.tool.tokenizer.Token;
 import org.fir3.cml.tool.util.seq.Sequence;
@@ -85,7 +85,7 @@ public final class TypeParser implements EntityParser<Type> {
             if (typeParameters.stream().anyMatch(
                     p -> Objects.equals(name, p.getName())
             )) {
-                return Optional.of(new ParameterTypeImpl(name));
+                return Optional.of(new ParameterType(name));
             }
 
             // If there is a left chevron, this is a generic type.
@@ -116,7 +116,7 @@ public final class TypeParser implements EntityParser<Type> {
                 }
             }
 
-            return Optional.of(new ModelTypeImpl(name, parameters));
+            return Optional.of(new ModelType(name, parameters));
         }
     }
 }

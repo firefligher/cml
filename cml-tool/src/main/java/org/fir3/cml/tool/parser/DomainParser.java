@@ -2,7 +2,6 @@ package org.fir3.cml.tool.parser;
 
 import org.fir3.cml.api.model.Domain;
 import org.fir3.cml.api.model.Model;
-import org.fir3.cml.tool.impl.DomainImpl;
 import org.fir3.cml.tool.tokenizer.Token;
 import org.fir3.cml.tool.util.seq.Sequence;
 
@@ -45,7 +44,7 @@ final class DomainParser implements EntityParser<Domain> {
             models.add(nextModel.get());
         }
 
-        return Optional.of(new DomainImpl(
+        return Optional.of(new Domain(
                 declaration.getName(),
                 declaration.getFlags(),
                 models

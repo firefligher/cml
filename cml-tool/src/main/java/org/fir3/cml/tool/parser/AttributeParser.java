@@ -1,8 +1,7 @@
 package org.fir3.cml.tool.parser;
 
-import org.fir3.cml.api.model.Attribute;
 import org.fir3.cml.api.model.Type;
-import org.fir3.cml.tool.impl.AttributeImpl;
+import org.fir3.cml.api.model.Attribute;
 import org.fir3.cml.tool.tokenizer.KeywordToken;
 import org.fir3.cml.tool.tokenizer.Token;
 import org.fir3.cml.tool.util.seq.Sequence;
@@ -51,7 +50,7 @@ final class AttributeParser implements EntityParser<Attribute> {
                 return Optional.empty();
             }
 
-            return Optional.of(new AttributeImpl(
+            return Optional.of(new Attribute(
                     optionalIdentifier.get().getIdentifier(),
                     optionalType.get()
             ));

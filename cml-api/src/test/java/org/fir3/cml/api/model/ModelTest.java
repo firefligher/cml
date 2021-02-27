@@ -1,8 +1,5 @@
-package org.fir3.cml.tool.impl;
+package org.fir3.cml.api.model;
 
-import org.fir3.cml.api.model.Attribute;
-import org.fir3.cml.api.model.Model;
-import org.fir3.cml.api.model.TypeParameter;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -10,21 +7,21 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ModelImplTest {
+public class ModelTest {
     private static final TypeParameter TEST_TYPE_PARAMETER_1 =
-            new TypeParameterImpl("TestTypeParameter1");
+            new TypeParameter("TestTypeParameter1");
 
     private static final TypeParameter TEST_TYPE_PARAMETER_2 =
-            new TypeParameterImpl("TestTypeParameter1");
+            new TypeParameter("TestTypeParameter1");
 
-    private static final Attribute TEST_ATTRIBUTE_1 = new AttributeImpl(
+    private static final Attribute TEST_ATTRIBUTE_1 = new Attribute(
             "testAttribute1",
-            new ModelTypeImpl("UnknownModel", Collections.emptyList())
+            new ModelType("UnknownModel", Collections.emptyList())
     );
 
-    private static final Attribute TEST_ATTRIBUTE_2 = new AttributeImpl(
+    private static final Attribute TEST_ATTRIBUTE_2 = new Attribute(
             "testAttribute2",
-            new ModelTypeImpl("UnknownModel", Collections.emptyList())
+            new ModelType("UnknownModel", Collections.emptyList())
     );
 
     @Test
@@ -34,24 +31,24 @@ public class ModelImplTest {
         EnumSet<Model.Flag> flags = EnumSet.of(Model.Flag.Builtin);
 
         List<TypeParameter> typeParameters = new ArrayList<>();
-        typeParameters.add(ModelImplTest.TEST_TYPE_PARAMETER_1);
+        typeParameters.add(ModelTest.TEST_TYPE_PARAMETER_1);
 
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(ModelImplTest.TEST_ATTRIBUTE_1);
+        attributes.add(ModelTest.TEST_ATTRIBUTE_1);
 
         // Creating the model
 
-        Model model = new ModelImpl("Test", flags, typeParameters, attributes);
+        Model model = new Model("Test", flags, typeParameters, attributes);
 
         // Attempting to modify the model by modifying the passed parameters
 
         flags.remove(Model.Flag.Builtin);
 
-        typeParameters.remove(ModelImplTest.TEST_TYPE_PARAMETER_1);
-        typeParameters.add(ModelImplTest.TEST_TYPE_PARAMETER_2);
+        typeParameters.remove(ModelTest.TEST_TYPE_PARAMETER_1);
+        typeParameters.add(ModelTest.TEST_TYPE_PARAMETER_2);
 
-        attributes.remove(ModelImplTest.TEST_ATTRIBUTE_1);
-        attributes.add(ModelImplTest.TEST_ATTRIBUTE_2);
+        attributes.remove(ModelTest.TEST_ATTRIBUTE_1);
+        attributes.add(ModelTest.TEST_ATTRIBUTE_2);
 
         // Assertions
 
@@ -62,21 +59,21 @@ public class ModelImplTest {
         List<TypeParameter> actualTypeParameters = model.getTypeParameters();
         assertEquals(1, actualTypeParameters.size());
         assertTrue(actualTypeParameters.contains(
-                ModelImplTest.TEST_TYPE_PARAMETER_1
+                ModelTest.TEST_TYPE_PARAMETER_1
         ));
 
         Set<Attribute> actualAttributes = model.getAttributes();
         assertEquals(1, actualAttributes.size());
-        assertTrue(actualAttributes.contains(ModelImplTest.TEST_ATTRIBUTE_1));
+        assertTrue(actualAttributes.contains(ModelTest.TEST_ATTRIBUTE_1));
     }
 
     @Test
     public void testUnmodifiability() {
-        Model model = new ModelImpl(
+        Model model = new Model(
                 "Test",
                 EnumSet.of(Model.Flag.Builtin),
-                Collections.singletonList(ModelImplTest.TEST_TYPE_PARAMETER_1),
-                Collections.singleton(ModelImplTest.TEST_ATTRIBUTE_1)
+                Collections.singletonList(ModelTest.TEST_TYPE_PARAMETER_1),
+                Collections.singleton(ModelTest.TEST_ATTRIBUTE_1)
         );
 
         // We must not be able to modify the collections that are stored in
@@ -98,8 +95,8 @@ public class ModelImplTest {
         List<TypeParameter> typeParameters = model.getTypeParameters();
 
         try {
-            typeParameters.remove(ModelImplTest.TEST_TYPE_PARAMETER_1);
-            typeParameters.add(ModelImplTest.TEST_TYPE_PARAMETER_2);
+            typeParameters.remove(ModelTest.TEST_TYPE_PARAMETER_1);
+            typeParameters.add(ModelTest.TEST_TYPE_PARAMETER_2);
         } catch (Throwable ignored) {
             // Not mandatory here.
         }
@@ -107,20 +104,20 @@ public class ModelImplTest {
         List<TypeParameter> actualTypeParameters = model.getTypeParameters();
         assertEquals(1, actualTypeParameters.size());
         assertTrue(actualTypeParameters.contains(
-                ModelImplTest.TEST_TYPE_PARAMETER_1
+                ModelTest.TEST_TYPE_PARAMETER_1
         ));
 
         Set<Attribute> attributes = model.getAttributes();
 
         try {
-            attributes.remove(ModelImplTest.TEST_ATTRIBUTE_1);
-            attributes.add(ModelImplTest.TEST_ATTRIBUTE_2);
+            attributes.remove(ModelTest.TEST_ATTRIBUTE_1);
+            attributes.add(ModelTest.TEST_ATTRIBUTE_2);
         } catch (Throwable ignored) {
             // Not mandatory here.
         }
 
         Set<Attribute> actualAttributes = model.getAttributes();
         assertEquals(1, actualAttributes.size());
-        assertTrue(actualAttributes.contains(ModelImplTest.TEST_ATTRIBUTE_1));
+        assertTrue(actualAttributes.contains(ModelTest.TEST_ATTRIBUTE_1));
     }
 }

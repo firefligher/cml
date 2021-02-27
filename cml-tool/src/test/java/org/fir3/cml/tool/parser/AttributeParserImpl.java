@@ -1,6 +1,7 @@
 package org.fir3.cml.tool.parser;
 
 import org.fir3.cml.api.model.Attribute;
+import org.fir3.cml.api.model.ModelType;
 import org.fir3.cml.api.model.Type;
 import org.fir3.cml.tool.tokenizer.IdentifierToken;
 import org.fir3.cml.tool.tokenizer.KeywordToken;
@@ -42,7 +43,7 @@ public class AttributeParserImpl {
             Type type = attribute.getType();
             assertSame(Type.Category.Model, type.getCategory());
 
-            Type.ModelType modelType = (Type.ModelType) type;
+            ModelType modelType = (ModelType) type;
             assertEquals("SimpleType", modelType.getModelName());
             assertTrue(modelType.getTypeParameters().isEmpty());
         }

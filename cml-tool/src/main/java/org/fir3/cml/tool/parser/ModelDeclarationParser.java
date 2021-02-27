@@ -2,7 +2,6 @@ package org.fir3.cml.tool.parser;
 
 import org.fir3.cml.api.model.Model;
 import org.fir3.cml.api.model.TypeParameter;
-import org.fir3.cml.tool.impl.TypeParameterImpl;
 import org.fir3.cml.tool.tokenizer.KeywordToken;
 import org.fir3.cml.tool.tokenizer.Token;
 import org.fir3.cml.tool.util.seq.Sequence;
@@ -85,7 +84,7 @@ final class ModelDeclarationParser implements EntityParser<ModelDeclaration> {
                         return Optional.empty();
                     }
 
-                    typeParameters.add(new TypeParameterImpl(
+                    typeParameters.add(new TypeParameter(
                             nullableTypeParamName.get().getIdentifier()
                     ));
                 } while (COMMA_MATCHER.skip(src));

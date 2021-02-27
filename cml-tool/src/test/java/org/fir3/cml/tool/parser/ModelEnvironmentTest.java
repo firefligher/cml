@@ -1,7 +1,6 @@
 package org.fir3.cml.tool.parser;
 
 import org.fir3.cml.api.model.TypeParameter;
-import org.fir3.cml.tool.impl.TypeParameterImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -15,8 +14,8 @@ public class ModelEnvironmentTest {
     @Test
     public void testCopyInConstructor() {
         Set<TypeParameter> typeParameters = new HashSet<>(Arrays.asList(
-                new TypeParameterImpl("Param1"),
-                new TypeParameterImpl("Param2")
+                new TypeParameter("Param1"),
+                new TypeParameter("Param2")
         ));
 
         Environment env = new Environment(typeParameters);
@@ -24,7 +23,7 @@ public class ModelEnvironmentTest {
         // Modifying the typeParameters
 
         typeParameters.clear();
-        typeParameters.add(new TypeParameterImpl("ForeignParam"));
+        typeParameters.add(new TypeParameter("ForeignParam"));
 
         // Asserting that the type parameters of env did not change
 
@@ -45,8 +44,8 @@ public class ModelEnvironmentTest {
     public void testImmutability() {
         Environment env = new Environment(new HashSet<>(
                 Arrays.asList(
-                        new TypeParameterImpl("Param1"),
-                        new TypeParameterImpl("Param2")
+                        new TypeParameter("Param1"),
+                        new TypeParameter("Param2")
                 )
         ));
 
@@ -56,7 +55,7 @@ public class ModelEnvironmentTest {
 
         try {
             typeParameters.clear();
-            typeParameters.add(new TypeParameterImpl("ForeignParam"));
+            typeParameters.add(new TypeParameter("ForeignParam"));
         } catch (Throwable ignored) { }
 
         // Asserting that env has not been changed

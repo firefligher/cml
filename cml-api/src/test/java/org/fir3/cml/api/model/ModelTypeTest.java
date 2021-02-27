@@ -1,6 +1,5 @@
-package org.fir3.cml.tool.impl;
+package org.fir3.cml.api.model;
 
-import org.fir3.cml.api.model.Type;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -9,15 +8,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ModelTypeImplTest {
+public class ModelTypeTest {
     @Test
     public void testCopyInConstructor() {
         List<Type> typeParameters = new ArrayList<>(Arrays.asList(
-                new ParameterTypeImpl("FirstParam"),
-                new ParameterTypeImpl("SecondParam")
+                new ParameterType("FirstParam"),
+                new ParameterType("SecondParam")
         ));
 
-        Type.ModelType modelType = new ModelTypeImpl(
+        ModelType modelType = new ModelType(
                 "TestModel",
                 typeParameters
         );
@@ -25,7 +24,7 @@ public class ModelTypeImplTest {
         // Modifying the typeParameters list
 
         typeParameters.clear();
-        typeParameters.add(new ParameterTypeImpl("ForeignParam"));
+        typeParameters.add(new ParameterType("ForeignParam"));
 
         // Validating that the type parameters of the modelType have not been
         // modified.
@@ -35,24 +34,24 @@ public class ModelTypeImplTest {
         assertEquals(2, actualTypeParameters.size());
         assertEquals(
                 "FirstParam",
-                ((ParameterTypeImpl) actualTypeParameters.get(0))
+                ((ParameterType) actualTypeParameters.get(0))
                         .getTypeParameterName()
         );
 
         assertEquals(
                 "SecondParam",
-                ((ParameterTypeImpl) actualTypeParameters.get(1))
+                ((ParameterType) actualTypeParameters.get(1))
                         .getTypeParameterName()
         );
     }
 
     @Test
     public void testUnmodifiability() {
-        Type.ModelType modelType = new ModelTypeImpl(
+        ModelType modelType = new ModelType(
                 "TestModel",
                 Arrays.asList(
-                        new ParameterTypeImpl("FirstParam"),
-                        new ParameterTypeImpl("SecondParam")
+                        new ParameterType("FirstParam"),
+                        new ParameterType("SecondParam")
                 )
         );
 
@@ -62,7 +61,7 @@ public class ModelTypeImplTest {
 
         try {
             typeParameters.clear();
-            typeParameters.add(new ParameterTypeImpl("ForeignParam"));
+            typeParameters.add(new ParameterType("ForeignParam"));
         } catch (Throwable ignored) {
             // Not mandatory for this test
         }
@@ -75,13 +74,13 @@ public class ModelTypeImplTest {
         assertEquals(2, actualTypeParameters.size());
         assertEquals(
                 "FirstParam",
-                ((ParameterTypeImpl) actualTypeParameters.get(0))
+                ((ParameterType) actualTypeParameters.get(0))
                         .getTypeParameterName()
         );
 
         assertEquals(
                 "SecondParam",
-                ((ParameterTypeImpl) actualTypeParameters.get(1))
+                ((ParameterType) actualTypeParameters.get(1))
                         .getTypeParameterName()
         );
     }
