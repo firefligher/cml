@@ -3,6 +3,7 @@ package org.fir3.cml.tool.util.seq;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A utility to test if the next elements of a {@link Sequence} match a certain
@@ -55,16 +56,15 @@ public final class SequenceMatcher<TElement> {
     public boolean matches(Sequence<TElement> src, boolean skipIfMatches)
             throws IOException {
         try (Sequence.Mark mark = src.mark()) {
-            // Read until a non-matching byte occurs or the end of the sequence
-            // is reached.
+            // Read until a non-matching element occurs or the end of the
+            // subsequence is reached.
 
-            for (TElement seqByte : this.sequence) {
+            for (TElement seqElement : this.sequence) {
                 try {
-                    if (seqByte == src.read()) {
+                    if (Objects.equals(seqElement, src.read())) {
                         continue;
                     }
-                } catch (EOFException ignored) {
-                }
+                } catch (EOFException ignored) { }
 
                 mark.reset();
                 return false;

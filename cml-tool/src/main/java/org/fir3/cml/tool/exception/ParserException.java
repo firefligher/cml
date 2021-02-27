@@ -1,10 +1,12 @@
 package org.fir3.cml.tool.exception;
 
+import java.io.IOException;
+
 /**
  * An exception that indicates that something went wrong while parsing a token
  * stream.
  */
-public class ParserException extends Exception {
+public class ParserException extends IOException {
     public ParserException(String message) {
         super(message);
     }
