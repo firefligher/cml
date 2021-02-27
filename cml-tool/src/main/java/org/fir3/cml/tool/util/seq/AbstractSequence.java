@@ -15,9 +15,11 @@ public abstract class AbstractSequence<TElement>
 
     private class MarkImpl implements Mark {
         private final List<TElement> buffer;
+        private final int uniqueDataOffset;
 
         public MarkImpl(List<TElement> buffer) {
             this.buffer = buffer;
+            this.uniqueDataOffset = buffer.size();
         }
 
         @Override
@@ -40,6 +42,17 @@ public abstract class AbstractSequence<TElement>
 
         public List<TElement> getBuffer() {
             return this.buffer;
+        }
+
+        public List<TElement> getUniqueBuffer() {
+            if (this.uniqueDataOffset >= this.buffer.size()) {
+                return Collections.emptyList();
+            }
+
+            return this.buffer.subList(
+                    this.uniqueDataOffset,
+                    this.buffer.size()
+            );
         }
     }
 
@@ -123,7 +136,7 @@ public abstract class AbstractSequence<TElement>
             return;
         }
 
-        this.marks.peek().addAll(((MarkImpl) mark).getBuffer());
+        this.marks.peek().addAll(((MarkImpl) mark).getUniqueBuffer());
     }
 
     private void removeMarksAbove(Mark mark) {
