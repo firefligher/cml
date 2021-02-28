@@ -25,11 +25,26 @@ public final class Environment {
      * @param domains   The domains that the new environment instance consists
      *                  of
      *
-     * @throws NullPointerException If <code>domains</code> is
-     *                              <code>null</code>.
+     * @throws NullPointerException     If <code>domains</code> is
+     *                                  <code>null</code>.
+     *
+     * @throws IllegalArgumentException If the specified <code>domains</code>
+     *                                  set contains different domain instances
+     *                                  with the same name.
      */
     public Environment(Set<Domain> domains) {
         Objects.requireNonNull(domains, "domains is null");
+
+        // Validating that there are no colliding domain names in the domains
+        // set
+
+        if (domains.stream().map(
+                Domain::getName
+        ).distinct().count() != domains.size()) {
+            throw new IllegalArgumentException(
+                    "Colliding domain instances in domains set"
+            );
+        }
 
         this.domains = Collections.unmodifiableSet(new HashSet<>(domains));
     }

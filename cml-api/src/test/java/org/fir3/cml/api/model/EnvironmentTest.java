@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EnvironmentTest {
     private static final Domain TEST_DOMAIN_1 = new Domain(
@@ -90,5 +89,37 @@ public class EnvironmentTest {
         assertEquals(env1, env2);
         assertEquals(env2, env1);
         assertEquals(env1.hashCode(), env2.hashCode());
+    }
+
+    @Test
+    public void testConstructorCollidingDomainCheck() {
+        Set<Domain> domains = new HashSet<>();
+
+        domains.add(new Domain(
+                "CollidingDomain",
+                EnumSet.noneOf(Domain.Flag.class),
+                Collections.singleton(new Model(
+                        "FirstModel",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Collections.emptyList(),
+                        Collections.emptySet()
+                ))
+        ));
+
+        domains.add(new Domain(
+                "CollidingDomain",
+                EnumSet.noneOf(Domain.Flag.class),
+                Collections.singleton(new Model(
+                        "SecondModel",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Collections.emptyList(),
+                        Collections.emptySet()
+                ))
+        ));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Environment(domains)
+        );
     }
 }
