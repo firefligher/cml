@@ -161,6 +161,26 @@ public final class Domain {
         return new Domain(this.name, this.flags, models);
     }
 
+    /**
+     * Resolves the model instance that has the specified <code>name</code>.
+     *
+     * @param name  The name of the requested model.
+     *
+     * @return  An {@link Optional} container that either contains the
+     *          requested model instance, or <code>null</code>, if there is no
+     *          corresponding model instance for the specified
+     *          <code>name</code>.
+     *
+     * @throws NullPointerException If <code>name</code> is <code>null</code>.
+     */
+    public Optional<Model> resolveModel(String name) {
+        Objects.requireNonNull(name, "name is null");
+
+        return this.models.stream()
+                .filter(m -> Objects.equals(name, m.getName()))
+                .findAny();
+    }
+
     @Override
     public int hashCode() {
         return this.name.hashCode() ^

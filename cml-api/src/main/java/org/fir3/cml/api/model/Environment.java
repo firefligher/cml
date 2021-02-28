@@ -1,9 +1,7 @@
 package org.fir3.cml.api.model;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An environment is a set of different domains that may depend on each other.
@@ -28,9 +26,13 @@ public final class Environment {
      * @throws NullPointerException     If <code>domains</code> is
      *                                  <code>null</code>.
      *
-     * @throws IllegalArgumentException If the specified <code>domains</code>
-     *                                  set contains different domain instances
-     *                                  with the same name.
+     * @throws IllegalArgumentException Either if the specified
+     *                                  <code>domains</code> set contains
+     *                                  different domain instances with the
+     *                                  same name, or if the same set contains
+     *                                  multiple ubiquitous domains that
+     *                                  declare at least one model with the
+     *                                  same name.
      */
     public Environment(Set<Domain> domains) {
         Objects.requireNonNull(domains, "domains is null");
@@ -46,6 +48,22 @@ public final class Environment {
             );
         }
 
+        // Validating that there are no colliding model names of ubiquitous
+        // domains
+
+        List<Model> ubiquitousModels = domains.stream()
+                .filter(d -> d.getFlags().contains(Domain.Flag.Ubiquitous))
+                .flatMap(d -> d.getModels().stream())
+                .collect(Collectors.toList());
+
+        if (ubiquitousModels.stream().map(
+                Model::getName
+        ).distinct().count() != ubiquitousModels.size()) {
+            throw new IllegalArgumentException(
+                    "Colliding models of ubiquitous domains"
+            );
+        }
+
         this.domains = Collections.unmodifiableSet(new HashSet<>(domains));
     }
 
@@ -56,6 +74,102 @@ public final class Environment {
      */
     public Set<Domain> getDomains() {
         return this.domains;
+    }
+
+    /**
+     * Resolves the domain instance with the specified <code>name</code> from
+     * this environment.
+     *
+     * @param name  The name of the domain that will be resolved.
+     *
+     * @return  An {@link Optional} container that either contains the domain
+     *          instance with the specified <code>name</code>, or
+     *          <code>null</code>, if there is no such domain instance.
+     *
+     * @throws NullPointerException If <code>name</code> is <code>null</code>.
+     */
+    public Optional<Domain> resolveDomain(String name) {
+        Objects.requireNonNull(name, "name is null");
+
+        return this.domains.stream()
+                .filter(d -> Objects.equals(name, d.getName()))
+                .findAny();
+    }
+
+    /**
+     * Resolves the model instance with the specified <code>name</code>.
+     *
+     * @param name      The name of the model that will be resolved.
+     *                  This name may be prefixed with the name of the domain,
+     *                  that the requested model was defined in, and a
+     *                  separating dot.
+     *
+     * @param context   The context from which the resolution request
+     *                  originates.
+     *                  If the specified model <code>name</code> is not
+     *                  prefixed with its domain name, the <code>context</code>
+     *                  may have an impact on the result, as models of the same
+     *                  domain have a higher resolution priority than models of
+     *                  ubiquitous domains.
+     *                  The value of this parameter may be <code>null</code>,
+     *                  in case there is no better choice.
+     *
+     * @return  An {@link Optional} container that either contains the
+     *          corresponding for the specified <code>name</code>, or
+     *          <code>null</code>, if there is no such model instance.
+     *
+     * @throws NullPointerException     If <code>name</code> is
+     *                                  <code>null</code>.
+     *
+     * @throws IllegalArgumentException If <code>name</code> starts or ends
+     *                                  with a dot.
+     */
+    public Optional<Model> resolveModel(String name, Domain context) {
+        Objects.requireNonNull(name, "name is null");
+
+        if (name.startsWith(".") || name.endsWith(".")) {
+            throw new IllegalArgumentException(
+                    "name starts and/or ends with a dot"
+            );
+        }
+
+        // If name contains at least one dot, we assume that it is the fully
+        // qualified name of the requested model. In this case, we need to
+        // split the name into its domain name part and into its model name
+        // part.
+
+        int lastDotIndex = name.lastIndexOf('.');
+
+        if (lastDotIndex != -1) {
+            String domainName = name.substring(0, lastDotIndex);
+            String modelName = name.substring(lastDotIndex + 1);
+
+            // Resolving the domain of the requested model by its name. If no
+            // such domain exists, the requested model cannot exist either and
+            // we're done.
+            // Otherwise, we resolve the model directly from its domain.
+
+            return this.resolveDomain(domainName)
+                    .flatMap(d -> d.resolveModel(modelName));
+        }
+
+        // First, we attempt to resolve the model from the specified context.
+        // If the context lacks a model instance with the specified name, we
+        // try to resolve the model from the ubiquitous domains.
+
+        Optional<Model> nullableModel = Optional.ofNullable(context)
+                .flatMap(d -> d.resolveModel(name));
+
+        if (nullableModel.isPresent()) {
+            return nullableModel;
+        }
+
+        return this.domains.stream()
+                .filter(d -> d.getFlags().contains(Domain.Flag.Ubiquitous))
+                .map(d -> d.resolveModel(name))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findAny();
     }
 
     @Override

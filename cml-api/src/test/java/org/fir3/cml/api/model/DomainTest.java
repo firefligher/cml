@@ -3,10 +3,7 @@ package org.fir3.cml.api.model;
 import org.fir3.cml.api.exception.CombinationException;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -273,5 +270,43 @@ public class DomainTest {
                 CombinationException.class,
                 () -> domain1.combine(domain2)
         );
+    }
+
+    @Test
+    public void testResolveModel() {
+        // Setting up a domain
+
+        Model model1 = new Model(
+                "TestModel1",
+                EnumSet.noneOf(Model.Flag.class),
+                Collections.emptyList(),
+                Collections.emptySet()
+        );
+
+        Model model2 = new Model(
+                "TestModel2",
+                EnumSet.noneOf(Model.Flag.class),
+                Collections.emptyList(),
+                Collections.emptySet()
+        );
+
+        Domain domain = new Domain(
+                "__test_domain__",
+                EnumSet.noneOf(Domain.Flag.class),
+                new HashSet<>(Arrays.asList(model1, model2))
+        );
+
+        // Resolving both models
+
+        Optional<Model> optionalModel1 = domain.resolveModel("TestModel1");
+        Optional<Model> optionalModel2 = domain.resolveModel("TestModel2");
+
+        // Asserting that the right models have been resolved
+
+        assertTrue(optionalModel1.isPresent());
+        assertEquals(model1, optionalModel1.get());
+
+        assertTrue(optionalModel2.isPresent());
+        assertEquals(model2, optionalModel2.get());
     }
 }
