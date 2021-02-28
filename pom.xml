@@ -45,4 +45,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:git:https://github.com/firefligher/cml.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:firefligher/cml.git</developerConnection>
+        <url>https://github.com/firefligher/cml</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 </project>
