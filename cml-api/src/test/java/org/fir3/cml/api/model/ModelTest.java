@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ModelTest {
     private static final TypeParameter TEST_TYPE_PARAMETER_1 =
@@ -146,5 +145,64 @@ public class ModelTest {
         assertEquals(model1, model2);
         assertEquals(model2, model1);
         assertEquals(model1.hashCode(), model2.hashCode());
+    }
+
+    @Test
+    public void testConstructorCheckForAttributeCollision() {
+        Set<Attribute> attributes = new HashSet<>();
+
+        attributes.add(new Attribute(
+                "_CollidingAttribute",
+                new ModelType("Model1", Collections.emptyList())
+        ));
+
+        attributes.add(new Attribute(
+                "_CollidingAttribute",
+                new ModelType("Model2", Collections.emptyList())
+        ));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Model(
+                        "BadModel",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Collections.emptyList(),
+                        attributes
+                )
+        );
+    }
+
+    @Test
+    public void testConstructorCheckForParamTypeSanity() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Model(
+                        "BadModel",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Collections.emptyList(),
+                        Collections.singleton(new Attribute(
+                                "_InvalidAttribute",
+                                new ParameterType("UnknownTypeParam")
+                        ))
+                )
+        );
+    }
+
+    @Test
+    public void testConstructorCheckForTypeParamCollision() {
+        List<TypeParameter> typeParameters = Arrays.asList(
+                new TypeParameter("CollidingParam"),
+                new TypeParameter("CollidingParam")
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Model(
+                        "BadModel",
+                        EnumSet.noneOf(Model.Flag.class),
+                        typeParameters,
+                        Collections.emptySet()
+                )
+        );
     }
 }

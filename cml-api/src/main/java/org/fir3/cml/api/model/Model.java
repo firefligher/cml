@@ -23,6 +23,34 @@ public final class Model {
         Builtin
     }
 
+    private static boolean verifyTypeSanity(
+            Type type,
+            Collection<TypeParameter> typeParameters
+    ) {
+        switch (type.getCategory()) {
+            case Model:
+                ModelType modelType = (ModelType) type;
+
+                return modelType.getTypeParameters()
+                        .stream()
+                        .allMatch(t -> verifyTypeSanity(t, typeParameters));
+
+            case Parameter:
+                ParameterType parameterType = (ParameterType) type;
+
+                return typeParameters.stream().anyMatch(t -> Objects.equals(
+                        parameterType.getTypeParameterName(),
+                        t.getName()
+                ));
+
+            default:
+                throw new UnsupportedOperationException(String.format(
+                        "Type category not implemented: '%s'",
+                        type.getCategory().name()
+                ));
+        }
+    }
+
     private final String name;
     private final EnumSet<Flag> flags;
     private final List<TypeParameter> typeParameters;
@@ -36,8 +64,15 @@ public final class Model {
      * @param typeParameters    The type parameters of the new model instance
      * @param attributes        The attributes of the new model instance
      *
-     * @throws NullPointerException If any of the passed parameters is
-     *                              <code>null</code>
+     * @throws NullPointerException     If any of the passed parameters is
+     *                                  <code>null</code>.
+     *
+     * @throws IllegalArgumentException Either if <code>typeParameters</code>
+     *                                  contains two instances with the same
+     *                                  name, or if <code>attributes</code>
+     *                                  contains instances with colliding names
+     *                                  or instances that depend on unknown
+     *                                  type parameters.
      */
     public Model(
             String name,
@@ -49,6 +84,24 @@ public final class Model {
         Objects.requireNonNull(flags);
         Objects.requireNonNull(typeParameters);
         Objects.requireNonNull(attributes);
+
+        // Validating that there are no duplicate type parameters
+
+        if (typeParameters.stream().map(
+                TypeParameter::getName
+        ).distinct().count() != typeParameters.size()) {
+            throw new IllegalArgumentException("Duplicate type parameter");
+        }
+
+        // Validating that there are no attributes that either have types that
+        // depend on unknown type parameters or the same name as another
+        // attribute instance in the set.
+
+        if (attributes.stream().filter(
+                a -> verifyTypeSanity(a.getType(), typeParameters)
+        ).map(Attribute::getName).distinct().count() != attributes.size()) {
+            throw new IllegalArgumentException("Invalid attribute set");
+        }
 
         this.name = name;
         this.flags = EnumSet.copyOf(flags);
