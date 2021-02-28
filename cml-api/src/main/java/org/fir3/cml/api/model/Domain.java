@@ -1,5 +1,7 @@
 package org.fir3.cml.api.model;
 
+import org.fir3.cml.api.exception.CombinationException;
+
 import java.util.*;
 
 /**
@@ -41,6 +43,10 @@ public final class Domain {
      *
      * @throws  NullPointerException    If any passed parameter is
      *                                  <code>null</code>.
+     *
+     * @throws IllegalArgumentException If <code>models</code> contains two
+     *                                  different model instances with the same
+     *                                  name.
      */
     public Domain(
             String name,
@@ -50,6 +56,17 @@ public final class Domain {
         Objects.requireNonNull(name);
         Objects.requireNonNull(flags);
         Objects.requireNonNull(models);
+
+        // Validating that there are no two model instances in models that have
+        // the same name.
+
+        if (models.stream().map(
+                Model::getName
+        ).distinct().count() != models.size()) {
+            throw new IllegalArgumentException(
+                    "Duplicate model name in specified models"
+            );
+        }
 
         this.name = name;
         this.flags = EnumSet.copyOf(flags);
@@ -81,6 +98,67 @@ public final class Domain {
      */
     public Set<Model> getModels() {
         return this.models;
+    }
+
+    /**
+     * Combines this domain instance with the specified <code>domain</code>
+     * instance and returns the resulting combined domain instance.
+     *
+     * Combining two different domain instances is only possible, if both
+     * instances have the same name, the same flags and only declare models
+     * with non-colliding names.
+     *
+     * @param domain    The other domain instance that will be combined with
+     *                  this domain instance.
+     *
+     * @return  A new domain instance that has the same name and flags as both,
+     *          this domain and the specified other <code>domain</code>
+     *          instance, and consists of all models that the two original
+     *          domain instances expose.
+     *
+     * @throws CombinationException If the name and/or flags of this domain
+     *                              instance and the specified
+     *                              <code>domain</code> instance do not match.
+     */
+    public Domain combine(Domain domain) throws CombinationException {
+        // Validating that the name and the flags of both original domain
+        // instances match
+
+        if (!Objects.equals(this.name, domain.name)) {
+            throw new CombinationException(
+                    "The names of the two domain instances do not match"
+            );
+        }
+
+        if (!Objects.equals(this.flags, domain.flags)) {
+            throw new CombinationException(
+                    "The flags of the two domain instances do not match"
+            );
+        }
+
+        // Building a combined set of all models
+        //
+        // NOTE:    Although the Domain-constructor verifies that there are no
+        //          models with the same name in a single domain instance, we
+        //          also need to check for collisions here, because otherwise
+        //          two equal models (of two different domain instances) would
+        //          be merged into one, but redeclaration is not allowed in any
+        //          form.
+
+        Set<Model> models = new HashSet<>(this.models);
+
+        for (Model model : domain.models) {
+            if (models.add(model)) {
+                continue;
+            }
+
+            throw new CombinationException(String.format(
+                    "Both domains declare the model '%s'",
+                    model.getName()
+            ));
+        }
+
+        return new Domain(this.name, this.flags, models);
     }
 
     @Override
