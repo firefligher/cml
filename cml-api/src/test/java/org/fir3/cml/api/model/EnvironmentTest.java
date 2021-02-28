@@ -1,5 +1,6 @@
 package org.fir3.cml.api.model;
 
+import org.fir3.cml.api.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -198,11 +199,13 @@ public class EnvironmentTest {
 
         Set<Domain> domains = new HashSet<>();
 
-        domains.add(new Domain(
+        Domain domain1 = new Domain(
                 "org.example.1",
                 EnumSet.of(Domain.Flag.Ubiquitous),
                 Collections.singleton(testModel1)
-        ));
+        );
+
+        domains.add(domain1);
 
         Domain domain2 = new Domain(
                 "org.example.2",
@@ -224,18 +227,29 @@ public class EnvironmentTest {
 
         // Resolving the same model name from different contexts
 
-        Optional<Model> nullContext = env.resolveModel("TestModel", null);
-        Optional<Model> twoContext = env.resolveModel("TestModel", domain2);
-        Optional<Model> externContext = env.resolveModel("TestModel", extern);
+        Optional<Pair<Domain, Model>> nullContext = env.resolveModel(
+                "TestModel",
+                null
+        );
+
+        Optional<Pair<Domain, Model>> twoContext = env.resolveModel(
+                "TestModel",
+                domain2
+        );
+
+        Optional<Pair<Domain, Model>> externContext = env.resolveModel(
+                "TestModel",
+                extern
+        );
 
         // Resolving both models by their fully qualified name from domain2
 
-        Optional<Model> optionalModel1 = env.resolveModel(
+        Optional<Pair<Domain, Model>> optionalModel1 = env.resolveModel(
                 "org.example.1.TestModel",
                 domain2
         );
 
-        Optional<Model> optionalModel2 = env.resolveModel(
+        Optional<Pair<Domain, Model>> optionalModel2 = env.resolveModel(
                 "org.example.2.TestModel",
                 domain2
         );
@@ -243,19 +257,24 @@ public class EnvironmentTest {
         // Asserting that only the expected models have been resolved
 
         assertTrue(nullContext.isPresent());
-        assertEquals(testModel1, nullContext.get());
+        assertEquals(domain1, nullContext.get().getFirstComponent());
+        assertEquals(testModel1, nullContext.get().getSecondComponent());
 
         assertTrue(twoContext.isPresent());
-        assertEquals(testModel2, twoContext.get());
+        assertEquals(domain2, twoContext.get().getFirstComponent());
+        assertEquals(testModel2, twoContext.get().getSecondComponent());
 
         assertTrue(externContext.isPresent());
-        assertEquals(testModel1, externContext.get());
+        assertEquals(domain1, externContext.get().getFirstComponent());
+        assertEquals(testModel1, externContext.get().getSecondComponent());
 
         assertTrue(optionalModel1.isPresent());
-        assertEquals(testModel1, optionalModel1.get());
+        assertEquals(domain1, optionalModel1.get().getFirstComponent());
+        assertEquals(testModel1, optionalModel1.get().getSecondComponent());
 
         assertTrue(optionalModel2.isPresent());
-        assertEquals(testModel2, optionalModel2.get());
+        assertEquals(domain2, optionalModel2.get().getFirstComponent());
+        assertEquals(testModel2, optionalModel2.get().getSecondComponent());
     }
 
     @Test

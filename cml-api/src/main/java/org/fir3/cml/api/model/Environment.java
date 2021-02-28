@@ -1,5 +1,7 @@
 package org.fir3.cml.api.model;
 
+import org.fir3.cml.api.util.Pair;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,13 @@ import java.util.stream.Collectors;
  * </p>
  */
 public final class Environment {
+    private static Optional<Pair<Domain, Model>> directlyResolveModel(
+            Domain domain,
+            String modelName
+    ) {
+        return domain.resolveModel(modelName).map(m -> new Pair<>(domain, m));
+    }
+
     private final Set<Domain> domains;
 
     /**
@@ -97,7 +106,8 @@ public final class Environment {
     }
 
     /**
-     * Resolves the model instance with the specified <code>name</code>.
+     * Resolves the domain instance and the model instance from the model's
+     * name <code>name</code>.
      *
      * @param name      The name of the model that will be resolved.
      *                  This name may be prefixed with the name of the domain,
@@ -115,8 +125,10 @@ public final class Environment {
      *                  in case there is no better choice.
      *
      * @return  An {@link Optional} container that either contains the
-     *          corresponding for the specified <code>name</code>, or
-     *          <code>null</code>, if there is no such model instance.
+     *          corresponding domain-model-pair for the specified
+     *          <code>name</code>, or <code>null</code>, if there is no domain
+     *          in this environment, that provides a model instance with the
+     *          specified <code>name</code>.
      *
      * @throws NullPointerException     If <code>name</code> is
      *                                  <code>null</code>.
@@ -124,7 +136,10 @@ public final class Environment {
      * @throws IllegalArgumentException If <code>name</code> starts or ends
      *                                  with a dot.
      */
-    public Optional<Model> resolveModel(String name, Domain context) {
+    public Optional<Pair<Domain, Model>> resolveModel(
+            String name,
+            Domain context
+    ) {
         Objects.requireNonNull(name, "name is null");
 
         if (name.startsWith(".") || name.endsWith(".")) {
@@ -150,15 +165,16 @@ public final class Environment {
             // Otherwise, we resolve the model directly from its domain.
 
             return this.resolveDomain(domainName)
-                    .flatMap(d -> d.resolveModel(modelName));
+                    .flatMap(d -> directlyResolveModel(d, modelName));
         }
 
         // First, we attempt to resolve the model from the specified context.
         // If the context lacks a model instance with the specified name, we
         // try to resolve the model from the ubiquitous domains.
 
-        Optional<Model> nullableModel = Optional.ofNullable(context)
-                .flatMap(d -> d.resolveModel(name));
+        Optional<Pair<Domain, Model>> nullableModel =
+                Optional.ofNullable(context)
+                        .flatMap(d -> directlyResolveModel(d, name));
 
         if (nullableModel.isPresent()) {
             return nullableModel;
@@ -166,7 +182,7 @@ public final class Environment {
 
         return this.domains.stream()
                 .filter(d -> d.getFlags().contains(Domain.Flag.Ubiquitous))
-                .map(d -> d.resolveModel(name))
+                .map(d -> directlyResolveModel(d, name))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findAny();
