@@ -12,9 +12,10 @@ public final class TypeHelper {
     private static final String PARAMETER_TYPE_PREFIX = "P:";
     private static final String MODEL_TYPE_PREFIX = "M:";
     private static final String GENERIC_MODEL_TYPE_PREFIX = "GM:";
-    private static final String GENERIC_LEFT_DELIMITER = "<";
-    private static final String GENERIC_RIGHT_DELIMITER = ">";
-    private static final String GENERIC_SEPARATOR = ",";
+
+    private static final char GENERIC_LEFT_DELIMITER = '<';
+    private static final char GENERIC_RIGHT_DELIMITER = '>';
+    private static final char GENERIC_SEPARATOR = ',';
 
     /**
      * Returns the unique string representation of the specified
@@ -89,7 +90,9 @@ public final class TypeHelper {
 
         if (typeStr.startsWith(GENERIC_MODEL_TYPE_PREFIX)) {
             int leftDelimiterIndex = typeStr.indexOf(GENERIC_LEFT_DELIMITER);
-            int rightDelimiterIndex = typeStr.indexOf(GENERIC_RIGHT_DELIMITER);
+            int rightDelimiterIndex = typeStr.lastIndexOf(
+                    GENERIC_RIGHT_DELIMITER
+            );
 
             if (leftDelimiterIndex == -1 || rightDelimiterIndex == -1) {
                 throw new IllegalArgumentException("Invalid typeStr");
@@ -100,12 +103,12 @@ public final class TypeHelper {
                     leftDelimiterIndex
             );
 
-            List<Type> typeParameters = Arrays.stream(typeStr.substring(
-                    leftDelimiterIndex + 1,
-                    rightDelimiterIndex
-            ).split(GENERIC_SEPARATOR))
-                    .map(TypeHelper::fromString)
-                    .collect(Collectors.toList());
+            List<Type> typeParameters = Arrays.stream(splitTypeParameterList(
+                    typeStr.substring(
+                            leftDelimiterIndex + 1,
+                            rightDelimiterIndex
+                    )
+            )).map(TypeHelper::fromString).collect(Collectors.toList());
 
             return new ModelType(modelName, typeParameters);
         }
@@ -150,6 +153,94 @@ public final class TypeHelper {
         return normalize(type, environment, context, new HashMap<>());
     }
 
+    /**
+     * Checks, if <code>limitedType</code> is a derivation from the
+     * <code>genericType</code>.
+     *
+     * A type <code>a</code> is considered to be derived from a type
+     * <code>b</code>, if <code>a</code> is an equal or more specific,
+     * still compatible, representation of <code>b</code>.
+     *
+     * @param limitedType   The limited type, which will be checked, if it is a
+     *                      derivation of <code>genericType</code>.
+     *
+     * @param genericType   The generic type.
+     *
+     * @return  Either <code>true</code>, if <code>limitedType</code> is a
+     *          derivation of <code>genericType</code>, otherwise
+     *          <code>false</code>.
+     *
+     * @throws NullPointerException If any of the parameters is
+     *                              <code>null</code>.
+     */
+    public static boolean isDerivation(
+            Type limitedType,
+            Type genericType
+    ) {
+        Objects.requireNonNull(limitedType);
+        Objects.requireNonNull(genericType);
+
+        switch (genericType.getCategory()) {
+            case Parameter:
+                // Since a parameter type may represent any other type, any
+                // other type is a derivation of the genericType.
+
+                return true;
+
+            case Model:
+                if (!(limitedType instanceof ModelType)) {
+                    // A not-model-type cannot be derived from a model type.
+
+                    return false;
+                }
+
+                ModelType limitedModelType = (ModelType) limitedType;
+                ModelType genericModelType = (ModelType) genericType;
+
+                if (!Objects.equals(
+                        limitedModelType.getModelName(),
+                        genericModelType.getModelName()
+                )) {
+                    // If the models of the types differ, the limitedType
+                    // cannot be a derivation of the genericType.
+
+                    return false;
+                }
+
+                // Verifying that the type parameters of the limitedModelType
+                // are derived from the type parameters of the
+                // genericModelType.
+
+                List<Type> limitedTypeParameters =
+                        limitedModelType.getTypeParameters();
+
+                List<Type> genericTypeParameters =
+                        genericModelType.getTypeParameters();
+
+                for (int i = 0; i < genericTypeParameters.size(); i++) {
+                    Type limitedTypeParam = limitedTypeParameters.get(i);
+                    Type genericTypeParam = genericTypeParameters.get(i);
+
+                    if (TypeHelper.isDerivation(
+                            limitedTypeParam,
+                            genericTypeParam
+                    )) {
+                        continue;
+                    }
+
+                    return false;
+                }
+
+                return true;
+
+            default:
+                throw new UnsupportedOperationException(String.format(
+                        "Category '%s' is not supported",
+                        genericType.getCategory().name()
+                ));
+        }
+    }
+
     private static String toString(Type type, Environment environment) {
         StringBuilder typeStr = new StringBuilder();
 
@@ -192,7 +283,9 @@ public final class TypeHelper {
                                                     environment
                                             ))
                                             .collect(Collectors.joining(
-                                                    GENERIC_SEPARATOR
+                                                    Character.toString(
+                                                            GENERIC_SEPARATOR
+                                                    )
                                             ))
                             )
                             .append(GENERIC_RIGHT_DELIMITER);
@@ -264,6 +357,38 @@ public final class TypeHelper {
                         type.getCategory().name()
                 ));
         }
+    }
+
+    private static String[] splitTypeParameterList(String typeParameterStr) {
+        List<String> typeParameters = new ArrayList<>();
+        StringBuilder typeBuilder = new StringBuilder();
+        int depthCounter = 0;
+
+        for (char nextChar : typeParameterStr.toCharArray()) {
+            if (depthCounter == 0 && nextChar == GENERIC_SEPARATOR) {
+                typeParameters.add(typeBuilder.toString());
+                typeBuilder.setLength(0);
+                continue;
+            }
+
+            typeBuilder.append(nextChar);
+
+            if (nextChar == GENERIC_LEFT_DELIMITER) {
+                depthCounter++;
+                continue;
+            }
+
+            if (nextChar == GENERIC_RIGHT_DELIMITER) {
+                depthCounter--;
+            }
+        }
+
+        if (depthCounter > 0) {
+            throw new IllegalArgumentException("typeParameterStr is invalid");
+        }
+
+        typeParameters.add(typeBuilder.toString());
+        return typeParameters.toArray(new String[0]);
     }
 
     private TypeHelper() {
