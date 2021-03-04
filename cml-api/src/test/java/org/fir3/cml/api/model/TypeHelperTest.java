@@ -157,4 +157,47 @@ public class TypeHelperTest {
                 reversedType
         );
     }
+
+    @Test
+    public void testNormalizeParameterTypes() {
+        // Setting up a proper environment
+
+        Domain domain = new Domain(
+                "some.domain",
+                EnumSet.noneOf(Domain.Flag.class),
+                Collections.singleton(new Model(
+                        "ComplexModel",
+                        EnumSet.noneOf(Model.Flag.class),
+                        Arrays.asList(
+                                new TypeParameter("Param1"),
+                                new TypeParameter("Param2")
+                        ),
+                        Collections.emptySet()
+                ))
+        );
+
+        Environment env = new Environment(Collections.singleton(domain));
+
+        // Creating the type that we will process in this test
+
+        Type type = new ModelType("ComplexModel", Arrays.asList(
+                new ModelType("ComplexModel", Arrays.asList(
+                        new ParameterType("Parameter1"),
+                        new ParameterType("OtherParameter")
+                )),
+                new ParameterType("OtherParameter")
+        ));
+
+        // Converting the model to its string representation
+
+        String typeStr = TypeHelper.toString(type, env, domain);
+
+        // Asserting that the typeStr is correct
+
+        assertEquals(
+                "GM:some.domain.ComplexModel<" +
+                        "GM:some.domain.ComplexModel<P:P1,P:P2>,P:P2>",
+                typeStr
+        );
+    }
 }
