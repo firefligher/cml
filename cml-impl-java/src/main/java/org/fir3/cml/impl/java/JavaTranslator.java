@@ -35,7 +35,7 @@ public final class JavaTranslator implements Translator {
                 "java.util.List<P:P1>"
         )));
 
-        DEFAULT = new Configuration(typeMappings);
+        DEFAULT = new Configuration(typeMappings, null);
     }
 
     @Override

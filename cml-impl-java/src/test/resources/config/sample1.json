@@ -11,5 +11,6 @@
             "cmlType": "M:org.example.String",
             "javaType": "java.lang.String"
         }
-    ]
+    ],
+    "outputDirectory": "."
 }

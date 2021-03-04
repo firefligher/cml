@@ -3,6 +3,7 @@ package org.fir3.cml.impl.java.config;
 import org.fir3.cml.api.util.TypeHelper;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -38,6 +39,8 @@ public class ConfigurationReaderTest {
             // Asserting that the details, that have been specified in the
             // JSON-file, have been deserialized successfully.
 
+            // typeMappings
+
             Set<TypeMapping> typeMappings = cfg.getTypeMappings();
 
             assertEquals(2, typeMappings.size());
@@ -50,6 +53,10 @@ public class ConfigurationReaderTest {
                     TypeHelper.fromString("M:org.example.String"),
                     new JavaType(null, "java.lang.String")
             )));
+
+            // outputDirectory
+
+            assertEquals(new File("."), cfg.getOutputDirectory());
         }
     }
 }

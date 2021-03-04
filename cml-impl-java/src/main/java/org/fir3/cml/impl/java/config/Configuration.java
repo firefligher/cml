@@ -1,7 +1,9 @@
 package org.fir3.cml.impl.java.config;
 
 import com.google.gson.*;
+import org.fir3.cml.impl.java.util.JsonUtil;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -12,6 +14,8 @@ public final class Configuration {
     final static class Deserializer
             implements JsonDeserializer<Configuration> {
         private static final String PROPERTY_TYPE_MAPPINGS = "typeMappings";
+        private static final String PROPERTY_OUTPUT_DIRECTORY =
+                "outputDirectory";
 
         @Override
         public Configuration deserialize(
@@ -24,6 +28,9 @@ public final class Configuration {
             }
 
             JsonObject obj = element.getAsJsonObject();
+
+            // typeMappings
+
             Set<TypeMapping> typeMappings = new HashSet<>();
 
             if (obj.has(PROPERTY_TYPE_MAPPINGS)) {
@@ -33,26 +40,42 @@ public final class Configuration {
                 )));
             }
 
-            return new Configuration(typeMappings);
+            // outputDirectory
+
+            File outputDirectory = null;
+
+            if (obj.has(PROPERTY_OUTPUT_DIRECTORY)) {
+                outputDirectory = new File(JsonUtil.expectStringProperty(
+                        obj,
+                        PROPERTY_OUTPUT_DIRECTORY
+                ));
+            }
+
+            return new Configuration(typeMappings, outputDirectory);
         }
     }
 
     private final Set<TypeMapping> typeMappings;
+    private final File outputDirectory;
 
     /**
      * Creates a new instance of {@link Configuration}.
      *
-     * @param typeMappings  The type mappings between CML- and Java-types
+     * @param typeMappings      The type mappings between CML- and Java-types
+     * @param outputDirectory   The output directory, where the translated
+     *                          Java-files will be stored
      *
      * @throws NullPointerException If <code>typeMappings</code> is
      *                              <code>null</code>.
      */
-    public Configuration(Set<TypeMapping> typeMappings) {
+    public Configuration(Set<TypeMapping> typeMappings, File outputDirectory) {
         Objects.requireNonNull(typeMappings);
 
         this.typeMappings = Collections.unmodifiableSet(new HashSet<>(
                 typeMappings
         ));
+
+        this.outputDirectory = outputDirectory;
     }
 
     /**
@@ -62,6 +85,16 @@ public final class Configuration {
      */
     public Set<TypeMapping> getTypeMappings() {
         return this.typeMappings;
+    }
+
+    /**
+     * Returns the output directory of this instance.
+     *
+     * @return  The output directory of this instance, which may be
+     *          <code>null</code>.
+     */
+    public File getOutputDirectory() {
+        return this.outputDirectory;
     }
 
     /**
@@ -102,7 +135,13 @@ public final class Configuration {
                 ))
                 .forEach(typeMappings::add);
 
-        return new Configuration(typeMappings);
+        // Merging the output directory (nullable)
+
+        File outputDirectory = (this.outputDirectory == null)
+                ? secondaryCfg.outputDirectory
+                : this.outputDirectory;
+
+        return new Configuration(typeMappings, outputDirectory);
     }
 
     @Override
