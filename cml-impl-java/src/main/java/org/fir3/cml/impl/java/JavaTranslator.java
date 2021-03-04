@@ -6,8 +6,9 @@ import org.fir3.cml.api.exception.ConfigurationException;
 import org.fir3.cml.api.model.Environment;
 import org.fir3.cml.impl.java.config.Configuration;
 import org.fir3.cml.impl.java.config.ConfigurationReader;
-import org.fir3.cml.impl.java.config.JavaType;
+import org.fir3.cml.impl.java.config.JavaTypeInfo;
 import org.fir3.cml.impl.java.config.TypeMapping;
+import org.fir3.cml.impl.java.type.JavaTypeHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,14 +26,14 @@ public final class JavaTranslator implements Translator {
     static {
         Set<TypeMapping> typeMappings = new HashSet<>();
 
-        typeMappings.add(new TypeMapping(Builtin.TYPE_BIT, new JavaType(
-                "bool",
-                "java.lang.Boolean"
+        typeMappings.add(new TypeMapping(Builtin.TYPE_BIT, new JavaTypeInfo(
+                JavaTypeHelper.fromString("bool"),
+                JavaTypeHelper.fromString("java.lang.Boolean")
         )));
 
-        typeMappings.add(new TypeMapping(Builtin.TYPE_SEQUENCE, new JavaType(
+        typeMappings.add(new TypeMapping(Builtin.TYPE_SEQUENCE, new JavaTypeInfo(
                 null,
-                "java.util.List<P:P1>"
+                JavaTypeHelper.fromString("java.util.List<P:P1>")
         )));
 
         DEFAULT = new Configuration(typeMappings, null);

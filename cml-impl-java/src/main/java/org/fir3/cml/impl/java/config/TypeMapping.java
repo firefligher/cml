@@ -37,14 +37,14 @@ public final class TypeMapping {
                     ctx.deserialize(obj.get(PROPERTY_CML_TYPE), Type.class),
                     ctx.deserialize(
                             obj.get(PROPERTY_JAVA_TYPE),
-                            JavaType.class
+                            JavaTypeInfo.class
                     )
             );
         }
     }
 
     private final Type cmlType;
-    private final JavaType javaType;
+    private final JavaTypeInfo javaType;
 
     /**
      * Creates a new instance of {@link TypeMapping}.
@@ -58,7 +58,7 @@ public final class TypeMapping {
      * @throws NullPointerException If either <code>cmlType</code> and/or
      *                              <code>javaType</code> is <code>null</code>.
      */
-    public TypeMapping(Type cmlType, JavaType javaType) {
+    public TypeMapping(Type cmlType, JavaTypeInfo javaType) {
         Objects.requireNonNull(cmlType);
         Objects.requireNonNull(javaType);
 
@@ -84,7 +84,7 @@ public final class TypeMapping {
      * @return  The Java-type that is being mapped by this {@link TypeMapping}
      *          instance.
      */
-    public JavaType getJavaType() {
+    public JavaTypeInfo getJavaType() {
         return this.javaType;
     }
 

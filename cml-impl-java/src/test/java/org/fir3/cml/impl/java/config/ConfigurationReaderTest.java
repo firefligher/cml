@@ -1,6 +1,7 @@
 package org.fir3.cml.impl.java.config;
 
 import org.fir3.cml.api.util.TypeHelper;
+import org.fir3.cml.impl.java.type.JavaTypeHelper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -46,12 +47,18 @@ public class ConfigurationReaderTest {
             assertEquals(2, typeMappings.size());
             assertTrue(typeMappings.contains(new TypeMapping(
                     TypeHelper.fromString("M:org.example.Int32"),
-                    new JavaType("int", "java.lang.Integer")
+                    new JavaTypeInfo(
+                            JavaTypeHelper.fromString("int"),
+                            JavaTypeHelper.fromString("java.lang.Integer")
+                    )
             )));
 
             assertTrue(typeMappings.contains(new TypeMapping(
                     TypeHelper.fromString("M:org.example.String"),
-                    new JavaType(null, "java.lang.String")
+                    new JavaTypeInfo(
+                            null,
+                            JavaTypeHelper.fromString("java.lang.String")
+                    )
             )));
 
             // outputDirectory

@@ -50,8 +50,8 @@ public final class ConfigurationReader {
 
         builder.registerTypeAdapter(Type.class, new TypeDeserializer());
         builder.registerTypeAdapter(
-                JavaType.class,
-                new JavaType.Deserializer()
+                JavaTypeInfo.class,
+                new JavaTypeInfo.Deserializer()
         );
 
         // Building the new Gson instance

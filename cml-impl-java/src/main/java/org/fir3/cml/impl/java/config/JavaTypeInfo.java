@@ -1,21 +1,24 @@
 package org.fir3.cml.impl.java.config;
 
 import com.google.gson.*;
+import org.fir3.cml.impl.java.type.JavaType;
+import org.fir3.cml.impl.java.type.JavaTypeHelper;
 import org.fir3.cml.impl.java.util.JsonUtil;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The representation of a Java type.
  */
-public final class JavaType {
-    static final class Deserializer implements JsonDeserializer<JavaType> {
+public final class JavaTypeInfo {
+    static final class Deserializer implements JsonDeserializer<JavaTypeInfo> {
         private static final String PROPERTY_PRIMITIVE = "primitive";
         private static final String PROPERTY_OBJECT = "object";
 
         @Override
-        public JavaType deserialize(
+        public JavaTypeInfo deserialize(
                 JsonElement element,
                 Type type,
                 JsonDeserializationContext ctx
@@ -27,7 +30,9 @@ public final class JavaType {
                     throw new JsonParseException("Expected JSON string");
                 }
 
-                return new JavaType(null, primitive.getAsString());
+                return new JavaTypeInfo(null, JavaTypeHelper.fromString(
+                        primitive.getAsString()
+                ));
             }
 
             if (element.isJsonObject()) {
@@ -41,9 +46,16 @@ public final class JavaType {
                     );
                 }
 
-                return new JavaType(
-                        primitiveType,
-                        JsonUtil.expectStringProperty(obj, PROPERTY_OBJECT)
+                return new JavaTypeInfo(
+                        Optional.ofNullable(primitiveType)
+                                .map(JavaTypeHelper::fromString)
+                                .orElse(null),
+                        JavaTypeHelper.fromString(
+                                JsonUtil.expectStringProperty(
+                                        obj,
+                                        PROPERTY_OBJECT
+                                )
+                        )
                 );
             }
 
@@ -53,11 +65,11 @@ public final class JavaType {
         }
     }
 
-    private final String primitiveType;
-    private final String objectType;
+    private final JavaType primitiveType;
+    private final JavaType objectType;
 
     /**
-     * Creates a new instance of {@link JavaType}.
+     * Creates a new instance of {@link JavaTypeInfo}.
      *
      * @param primitiveType The primitive representation of this type; this may
      *                      be <code>null</code>, if there is none.
@@ -67,7 +79,7 @@ public final class JavaType {
      * @throws NullPointerException If <code>object</code> is
      *                              <code>null</code>.
      */
-    public JavaType(String primitiveType, String objectType) {
+    public JavaTypeInfo(JavaType primitiveType, JavaType objectType) {
         Objects.requireNonNull(objectType);
 
         this.primitiveType = primitiveType;
@@ -90,7 +102,7 @@ public final class JavaType {
      *
      * @return  The object representation of this Java type.
      */
-    public String getObjectType() {
+    public JavaType getObjectType() {
         return this.objectType;
     }
 
@@ -100,7 +112,7 @@ public final class JavaType {
      * @return  The primitive representation of this Java type, which may be
      *          <code>null</code>, if there is none.
      */
-    public String getPrimitiveType() {
+    public JavaType getPrimitiveType() {
         return this.primitiveType;
     }
 
@@ -117,8 +129,8 @@ public final class JavaType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof JavaType) {
-            JavaType type = (JavaType) obj;
+        if (obj instanceof JavaTypeInfo) {
+            JavaTypeInfo type = (JavaTypeInfo) obj;
 
             return Objects.equals(this.objectType, type.objectType) &&
                     Objects.equals(this.primitiveType, type.primitiveType);
