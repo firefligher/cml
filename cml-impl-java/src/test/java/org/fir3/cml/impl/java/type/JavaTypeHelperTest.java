@@ -23,7 +23,11 @@ public class JavaTypeHelperTest {
         assertEquals(JavaType.Category.ClassType, type.getCategory());
 
         ClassType classType = (ClassType) type;
-        assertEquals("java.lang.Boolean", classType.getClassName());
+        assertEquals(
+                "java.lang.Boolean",
+                classType.getFullyQualifiedClassName()
+        );
+
         assertTrue(classType.getTypeParameters().isEmpty());
     }
 

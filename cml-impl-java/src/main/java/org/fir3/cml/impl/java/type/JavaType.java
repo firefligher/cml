@@ -25,4 +25,12 @@ public interface JavaType {
      * @return  The category of this type.
      */
     Category getCategory();
+
+    /**
+     * Returns the string representation of this type that can be used in Java
+     * source code.
+     *
+     * @return  The string representation of this type.
+     */
+    String toJavaType();
 }

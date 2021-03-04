@@ -18,6 +18,11 @@ public final class TypeVariableType implements JavaType {
         return Category.TypeVariable;
     }
 
+    @Override
+    public String toJavaType() {
+        return this.name;
+    }
+
     public String getName() {
         return this.name;
     }

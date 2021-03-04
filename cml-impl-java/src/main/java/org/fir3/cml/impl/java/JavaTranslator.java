@@ -3,6 +3,7 @@ package org.fir3.cml.impl.java;
 import org.fir3.cml.api.Builtin;
 import org.fir3.cml.api.Translator;
 import org.fir3.cml.api.exception.ConfigurationException;
+import org.fir3.cml.api.exception.TranslationException;
 import org.fir3.cml.api.model.Environment;
 import org.fir3.cml.impl.java.config.Configuration;
 import org.fir3.cml.impl.java.config.ConfigurationReader;
@@ -10,6 +11,7 @@ import org.fir3.cml.impl.java.config.JavaTypeInfo;
 import org.fir3.cml.impl.java.config.TypeMapping;
 import org.fir3.cml.impl.java.type.JavaTypeHelper;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -36,7 +38,7 @@ public final class JavaTranslator implements Translator {
                 JavaTypeHelper.fromString("java.util.List<P:P1>")
         )));
 
-        DEFAULT = new Configuration(typeMappings, null);
+        DEFAULT = new Configuration(typeMappings, new File("output"));
     }
 
     @Override
@@ -44,7 +46,7 @@ public final class JavaTranslator implements Translator {
             Environment environment,
             String targetDomain,
             InputStream configSource
-    ) throws ConfigurationException {
+    ) throws ConfigurationException, TranslationException {
         Configuration config = JavaTranslator.DEFAULT;
 
         // If there is some configuration, we expect it to be JSON and that it
@@ -63,6 +65,12 @@ public final class JavaTranslator implements Translator {
 
         config = config.merge(JavaTranslator.DEFAULT);
 
-        throw new UnsupportedOperationException("Not implemented");
+        // Execute the translation
+
+        new EnvironmentTranslator(
+                environment,
+                config.getOutputDirectory(),
+                config.getTypeMappings()
+        ).translateDomain(targetDomain);
     }
 }
