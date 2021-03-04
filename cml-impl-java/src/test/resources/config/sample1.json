@@ -1,0 +1,15 @@
+{
+    "typeMappings": [
+        {
+            "cmlType": "M:org.example.Int32",
+            "javaType": {
+                "primitive": "int",
+                "object": "java.lang.Integer"
+            }
+        },
+        {
+            "cmlType": "M:org.example.String",
+            "javaType": "java.lang.String"
+        }
+    ]
+}

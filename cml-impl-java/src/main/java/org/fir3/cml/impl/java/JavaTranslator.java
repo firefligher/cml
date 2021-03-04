@@ -1,14 +1,18 @@
 package org.fir3.cml.impl.java;
 
-import com.google.gson.Gson;
+import org.fir3.cml.api.Builtin;
 import org.fir3.cml.api.Translator;
 import org.fir3.cml.api.exception.ConfigurationException;
 import org.fir3.cml.api.model.Environment;
 import org.fir3.cml.impl.java.config.Configuration;
 import org.fir3.cml.impl.java.config.ConfigurationReader;
+import org.fir3.cml.impl.java.config.JavaType;
+import org.fir3.cml.impl.java.config.TypeMapping;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A translator implementation that targets the Java programming language and
@@ -16,11 +20,22 @@ import java.io.InputStream;
  */
 @Translator.Info(name = "java")
 public final class JavaTranslator implements Translator {
-    private static final Configuration DEFAULT = new Configuration();
-    private final Gson gson;
+    private static final Configuration DEFAULT;
 
-    public JavaTranslator() {
-        this.gson = new Gson();
+    static {
+        Set<TypeMapping> typeMappings = new HashSet<>();
+
+        typeMappings.add(new TypeMapping(Builtin.TYPE_BIT, new JavaType(
+                "bool",
+                "java.lang.Boolean"
+        )));
+
+        typeMappings.add(new TypeMapping(Builtin.TYPE_SEQUENCE, new JavaType(
+                null,
+                "java.util.List<P:P1>"
+        )));
+
+        DEFAULT = new Configuration(typeMappings);
     }
 
     @Override
@@ -29,10 +44,10 @@ public final class JavaTranslator implements Translator {
             String targetDomain,
             InputStream configSource
     ) throws ConfigurationException {
+        Configuration config = JavaTranslator.DEFAULT;
+
         // If there is some configuration, we expect it to be JSON and that it
         // is a serialized instance of the Configuration class.
-
-        Configuration config = JavaTranslator.DEFAULT;
 
         if (configSource != null) {
             try {
@@ -41,6 +56,11 @@ public final class JavaTranslator implements Translator {
                 throw new ConfigurationException(ex);
             }
         }
+
+        // Always merging the DEFAULT configuration into the custom one to
+        // ensure that all required values are available.
+
+        config = config.merge(JavaTranslator.DEFAULT);
 
         throw new UnsupportedOperationException("Not implemented");
     }

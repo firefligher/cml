@@ -1,8 +1,10 @@
 package org.fir3.cml.impl.java.config;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import org.fir3.cml.api.model.Type;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +33,30 @@ public final class ConfigurationReader {
     private final Gson gson;
 
     private ConfigurationReader() {
-        this.gson = new Gson();
+        GsonBuilder builder = new GsonBuilder();
+
+        // Registering the deserialization implementations for the
+        // Configuration type and its dependencies.
+
+        builder.registerTypeAdapter(
+                Configuration.class,
+                new Configuration.Deserializer()
+        );
+
+        builder.registerTypeAdapter(
+                TypeMapping.class,
+                new TypeMapping.Deserializer()
+        );
+
+        builder.registerTypeAdapter(Type.class, new TypeDeserializer());
+        builder.registerTypeAdapter(
+                JavaType.class,
+                new JavaType.Deserializer()
+        );
+
+        // Building the new Gson instance
+
+        this.gson = builder.create();
     }
 
     /**
