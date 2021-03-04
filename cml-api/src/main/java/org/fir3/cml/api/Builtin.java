@@ -18,7 +18,7 @@ public final class Builtin {
      * A simple collection of elements.
      */
     public static final Type TYPE_SEQUENCE = TypeHelper.fromString(
-            "org.fir3.cml.__builtin__.Sequence<P:P1>"
+            "GM:org.fir3.cml.__builtin__.Sequence<P:P1>"
     );
 
     private Builtin() {
