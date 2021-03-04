@@ -94,7 +94,10 @@ public final class TypeHelper {
                     GENERIC_RIGHT_DELIMITER
             );
 
-            if (leftDelimiterIndex == -1 || rightDelimiterIndex == -1) {
+            if (
+                    leftDelimiterIndex == -1 ||
+                    rightDelimiterIndex < leftDelimiterIndex
+            ) {
                 throw new IllegalArgumentException("Invalid typeStr");
             }
 
@@ -103,12 +106,14 @@ public final class TypeHelper {
                     leftDelimiterIndex
             );
 
-            List<Type> typeParameters = Arrays.stream(splitTypeParameterList(
+            List<Type> typeParameters = splitTypeParameterList(
                     typeStr.substring(
                             leftDelimiterIndex + 1,
                             rightDelimiterIndex
                     )
-            )).map(TypeHelper::fromString).collect(Collectors.toList());
+            ).stream()
+                    .map(TypeHelper::fromString)
+                    .collect(Collectors.toList());
 
             return new ModelType(modelName, typeParameters);
         }
@@ -241,6 +246,41 @@ public final class TypeHelper {
         }
     }
 
+    /**
+     * Returns the most generic {@link Type} that can be derived from the
+     * specified {@link Model}.
+     *
+     * @param environment   The environment of the <code>domain</code> and
+     *                      <code>model</code>.
+     *
+     * @param domain        The domain of the specified <code>model</code>.
+     * @param model         The model, whose most generic {@link Type} will be
+     *                      returned.
+     *
+     * @return  The normalized variant of the most generic {@link Type} that
+     *          can be derived from the specified <code>model</code>.
+     *
+     * @throws NullPointerException If <code>model</code> is <code>null</code>.
+     */
+    public static Type from(
+            Environment environment,
+            Domain domain,
+            Model model
+    ) {
+        Objects.requireNonNull(model);
+
+        ModelType type = new ModelType(
+                model.getName(),
+                model.getTypeParameters()
+                        .stream()
+                        .map(TypeParameter::getName)
+                        .map(ParameterType::new)
+                        .collect(Collectors.toList())
+        );
+
+        return normalize(type, environment, domain);
+    }
+
     private static String toString(Type type, Environment environment) {
         StringBuilder typeStr = new StringBuilder();
 
@@ -359,7 +399,9 @@ public final class TypeHelper {
         }
     }
 
-    private static String[] splitTypeParameterList(String typeParameterStr) {
+    private static List<String> splitTypeParameterList(
+            String typeParameterStr
+    ) {
         List<String> typeParameters = new ArrayList<>();
         StringBuilder typeBuilder = new StringBuilder();
         int depthCounter = 0;
@@ -388,7 +430,7 @@ public final class TypeHelper {
         }
 
         typeParameters.add(typeBuilder.toString());
-        return typeParameters.toArray(new String[0]);
+        return typeParameters;
     }
 
     private TypeHelper() {
