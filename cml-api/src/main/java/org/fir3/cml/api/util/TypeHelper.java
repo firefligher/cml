@@ -159,6 +159,124 @@ public final class TypeHelper {
     }
 
     /**
+     * Computes a score that states how generic the specified
+     * <code>genericType</code> is compared to the specified
+     * <code>derivedType</code>.
+     *
+     * <p>
+     *     <b>Example 1:</b><br/>
+     *     If <code>genericType</code> is the deserialized representation of
+     *     <code>GM:List&lt;P:P1&gt;</code> and the <code>derivedType</code> is
+     *     <code>GM:List&lt;M:Element&gt;</code>, the calculated derivation
+     *     score is 1, because only one type parameter has been specified.
+     * </p>
+     *
+     * <p>
+     *     <b>Example 2:</b><br>
+     *     If <code>genericType</code> is the deserialized representation of
+     *     <code>GM:Map&lt;P:P1,P:P2&gt</code> and the <code>derivedType</code>
+     *     is <code>GM:Map&lt;GM:List&lt;M:KeyMode&gt;,M:ValueModel&gt;</code>,
+     *     the calculated derivation score is 2, because two type parameters of
+     *     the original <code>genericType</code> have been specified.
+     * </p>
+     *
+     * @param derivedType   The normalized derived type.
+     * @param genericType   The normalized generic type.
+     *
+     * @return  The calculated derivation score. If the
+     *          <code>derivedType</code> cannot be derived from the
+     *          <code>genericType</code>, the score is <code>-1</code>. If the
+     *          <code>derivedType</code> and the <code>genericType</code> are
+     *          equal, the score is <code>0</code>. In all other cases, the
+     *          score is positive.
+     *
+     * @throws NullPointerException If either <code>derivedType</code>,
+     *                              <code>genericType</code>, or both are
+     *                              <code>null</code>.
+     */
+    public static int computeDerivationScore(
+            Type derivedType,
+            Type genericType
+    ) {
+        Objects.requireNonNull(derivedType);
+        Objects.requireNonNull(genericType);
+
+        switch (genericType.getCategory()) {
+            case Parameter:
+                if (derivedType.getCategory() == Type.Category.Parameter) {
+                    return 0;
+                }
+
+                return 1;
+
+            case Model:
+                if (derivedType.getCategory() != Type.Category.Model) {
+                    return -1;
+                }
+
+                ModelType genericModelType = (ModelType) genericType;
+                ModelType derivedModelType = (ModelType) derivedType;
+
+                // If both model types differ from each other, the types must
+                // be incompatible.
+
+                if (!Objects.equals(
+                        genericModelType.getModelName(),
+                        derivedModelType.getModelName()
+                )) {
+                    return -1;
+                }
+
+                // The sum of the parameter's derivation score is the final
+                // score. If the derivation score of any type parameter is -1,
+                // that parameter is incompatible, which leads to a total
+                // incompatibility of the specified types.
+
+                List<Type> genericTypeParameters =
+                        genericModelType.getTypeParameters();
+
+                List<Type> derivedTypeParameters =
+                        derivedModelType.getTypeParameters();
+
+                if (genericTypeParameters.size() !=
+                        derivedTypeParameters.size()) {
+                    // If both types have a different number of type parameters
+                    // although they reference the same model, at least one
+                    // type must be invalid and both are incompatible with each
+                    // other.
+
+                    return -1;
+                }
+
+                int totalScore = 0;
+
+                for (
+                        int paramIndex = 0;
+                        paramIndex < genericTypeParameters.size();
+                        paramIndex++
+                ) {
+                    int paramScore = computeDerivationScore(
+                            derivedTypeParameters.get(paramIndex),
+                            genericTypeParameters.get(paramIndex)
+                    );
+
+                    if (paramScore == -1) {
+                        return -1;
+                    }
+
+                    totalScore += paramScore;
+                }
+
+                return totalScore;
+
+            default:
+                throw new UnsupportedOperationException(
+                        "Category not supported"
+                );
+        }
+    }
+
+    /**
      * Checks, if <code>limitedType</code> is a derivation from the
      * <code>genericType</code>.
      *
@@ -185,65 +303,7 @@ public final class TypeHelper {
         Objects.requireNonNull(limitedType);
         Objects.requireNonNull(genericType);
 
-        switch (genericType.getCategory()) {
-            case Parameter:
-                // Since a parameter type may represent any other type, any
-                // other type is a derivation of the genericType.
-
-                return true;
-
-            case Model:
-                if (!(limitedType instanceof ModelType)) {
-                    // A not-model-type cannot be derived from a model type.
-
-                    return false;
-                }
-
-                ModelType limitedModelType = (ModelType) limitedType;
-                ModelType genericModelType = (ModelType) genericType;
-
-                if (!Objects.equals(
-                        limitedModelType.getModelName(),
-                        genericModelType.getModelName()
-                )) {
-                    // If the models of the types differ, the limitedType
-                    // cannot be a derivation of the genericType.
-
-                    return false;
-                }
-
-                // Verifying that the type parameters of the limitedModelType
-                // are derived from the type parameters of the
-                // genericModelType.
-
-                List<Type> limitedTypeParameters =
-                        limitedModelType.getTypeParameters();
-
-                List<Type> genericTypeParameters =
-                        genericModelType.getTypeParameters();
-
-                for (int i = 0; i < genericTypeParameters.size(); i++) {
-                    Type limitedTypeParam = limitedTypeParameters.get(i);
-                    Type genericTypeParam = genericTypeParameters.get(i);
-
-                    if (TypeHelper.isDerivation(
-                            limitedTypeParam,
-                            genericTypeParam
-                    )) {
-                        continue;
-                    }
-
-                    return false;
-                }
-
-                return true;
-
-            default:
-                throw new UnsupportedOperationException(String.format(
-                        "Category '%s' is not supported",
-                        genericType.getCategory().name()
-                ));
-        }
+        return computeDerivationScore(limitedType, genericType) >= 0;
     }
 
     /**
