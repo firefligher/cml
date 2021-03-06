@@ -45,7 +45,8 @@ public final class ParameterType implements Type {
 
     @Override
     public int hashCode() {
-        return this.typeParameterName.hashCode();
+        return Category.Parameter.hashCode() ^
+                this.typeParameterName.hashCode();
     }
 
     @Override

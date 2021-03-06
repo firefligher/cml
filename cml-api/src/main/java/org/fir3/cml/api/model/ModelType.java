@@ -64,7 +64,9 @@ public final class ModelType implements Type {
 
     @Override
     public int hashCode() {
-        return this.modelName.hashCode() ^ this.typeParameters.hashCode();
+        return Category.Model.hashCode() ^
+                this.modelName.hashCode() ^
+                this.typeParameters.hashCode();
     }
 
     @Override
